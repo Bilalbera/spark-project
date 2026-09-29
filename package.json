@@ -13,7 +13,7 @@
   },
   "overrides": {
     "rolldown": "1.2.1",
-    "ohash": "2.0.11"
+    "ohash": "file:./vendor/ohash"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -90,7 +90,7 @@
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
     "nitro": "file:./vendor/nitro",
-    "ohash": "2.0.11",
+    "ohash": "file:./vendor/ohash",
     "postgres": "^3.4.9",
     "prettier": "^3.7.3",
     "typescript": "^5.8.3",
