@@ -6,8 +6,12 @@
   "main": "electron/main.cjs",
 
   "scripts": {
+    "postinstall": "node -e \"const f=require('fs'),p='node_modules/@lovable.dev/vite-tanstack-config/node_modules/nitro';if(!f.existsSync(p+'/package.json'))f.rmSync(p,{recursive:true,force:true})\"",
+    "predev": "bun run postinstall",
     "dev": "vite dev",
+    "prebuild": "bun run postinstall",
     "build": "vite build",
+    "prebuild:dev": "bun run postinstall",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
@@ -26,7 +30,8 @@
 
   "overrides": {
     "rolldown": "1.2.1",
-    "ohash": "file:./vendor/ohash"
+    "ohash": "file:./vendor/ohash",
+    "nitro": "file:./vendor/nitro"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
