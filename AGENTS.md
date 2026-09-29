@@ -10,4 +10,4 @@
 <!-- LOVABLE:END -->
 
 - Kurucu yönetimi `/kurucu` altındaki korumalı sayfalarda tutulur; böylece rol denetimi ve yönetim arayüzü tek bir yerde uygulanır.
-- Nitro ve doğrudan yükleme bağımlılığı `ohash`, `vendor/` altındaki doğrulanmış açılmış paketlerden kurulur; uzak paket önbelleğindeki eksik dosyalar derlemeyi bozmasın.
+- Nitro ile doğrudan yükleme bağımlılıkları `ohash` ve `@tanstack/query-core`, `vendor/` altındaki doğrulanmış açılmış paketlerden kurulur; uzak paket önbelleğindeki eksik dosyalar derlemeyi bozmasın.

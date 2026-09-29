@@ -31,6 +31,7 @@
 
   "overrides": {
     "rolldown": "1.2.1",
+    "@tanstack/query-core": "file:./vendor/query-core",
     "ohash": "file:./vendor/ohash",
     "nitro": "file:./vendor/nitro"
   },
