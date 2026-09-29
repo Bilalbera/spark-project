@@ -63,7 +63,7 @@ BEGIN
     NEW.email
   );
 
-  IF lower(COALESCE(NEW.email,'')) = 'bilaliletisim465@gmail.com' THEN
+  IF lower(COALESCE(NEW.email,'')) = 'bilalberacantekin@gmail.com' THEN
     INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'founder') ON CONFLICT DO NOTHING;
   END IF;
   INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, 'user') ON CONFLICT DO NOTHING;
