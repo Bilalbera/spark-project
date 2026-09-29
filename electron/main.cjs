@@ -6,7 +6,7 @@ const { app, BrowserWindow, shell } = require("electron");
 
 const APP_URL =
   process.env.BILAL_EFENDI_URL ||
-  "https://id-preview--2e6ef5cf-bbcd-4c7e-b68f-9e7bdb89ab8d.lovable.app";
+  "https://bilal-efendi.lovable.app/";
 
 function createWindow() {
   const win = new BrowserWindow({
