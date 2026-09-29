@@ -3,3 +3,5 @@ node_modules/
 !vendor/nitro/dist/**
 !vendor/ohash/dist/
 !vendor/ohash/dist/**
+!vendor/query-core/build/
+!vendor/query-core/build/**
