@@ -1,3 +1,5 @@
 node_modules/
 !vendor/nitro/dist/
 !vendor/nitro/dist/**
+!vendor/ohash/dist/
+!vendor/ohash/dist/**
