@@ -26,7 +26,8 @@
 
   "overrides": {
     "rolldown": "1.2.1",
-    "ohash": "file:./vendor/ohash"
+    "ohash": "file:./vendor/ohash",
+    "nitro": "file:./vendor/nitro"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
