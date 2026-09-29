@@ -11,3 +11,4 @@
 
 - Kurucu yönetimi `/kurucu` altındaki korumalı sayfalarda tutulur; böylece rol denetimi ve yönetim arayüzü tek bir yerde uygulanır.
 - Nitro ile doğrudan yükleme bağımlılıkları `ohash` ve `@tanstack/query-core`, `vendor/` altındaki doğrulanmış açılmış paketlerden kurulur; uzak paket önbelleğindeki eksik dosyalar derlemeyi bozmasın.
+- `@tanstack/query-core` is aliased in vite.config.ts to `vendor/query-core`; publish installs left its node_modules copy incomplete.
