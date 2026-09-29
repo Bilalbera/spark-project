@@ -13,7 +13,11 @@ const queryCore = fileURLToPath(
   new URL("./vendor/query-core/build/modern/index.js", import.meta.url),
 );
 
+// Windows desktop build (npm run pc:build) runs a local Node server instead of the edge target.
+const electronBuild = process.env.ELECTRON_BUILD === "1";
+
 export default defineConfig({
+  ...(electronBuild ? { nitro: { preset: "node-server" } } : {}),
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this

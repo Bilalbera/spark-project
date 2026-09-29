@@ -18,14 +18,22 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "pc:start": "electron .",
-    "pc:build": "electron-builder --win"
+    "pc:build": "node electron/build.cjs && electron-builder --win"
   },
 
   "build": {
     "appId": "app.bilalefendi.pc",
     "productName": "Bilal Efendi",
+    "asar": false,
+    "directories": { "output": "dist" },
+    "files": ["electron/**", "package.json", ".env", ".output/**", "!node_modules/**", "!src/**", "!vendor/**"],
     "win": {
       "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "Bilal Efendi Setup.${ext}"
     }
   },
 
