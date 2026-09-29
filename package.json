@@ -89,7 +89,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
-    "nitro": "./vendor/nitro",
+    "nitro": "file:./vendor/nitro",
     "ohash": "2.0.11",
     "postgres": "^3.4.9",
     "prettier": "^3.7.3",
