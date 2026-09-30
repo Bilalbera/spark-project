@@ -14,7 +14,7 @@ const queryCore = fileURLToPath(
 );
 
 // Windows desktop build (npm run pc:build) runs a local Node server instead of the edge target.
-const electronBuild = process.env.ELECTRON_BUILD === "1";
+const electronBuild = process.env['ELECTRON_BUILD'] === "1";
 
 export default defineConfig({
   ...(electronBuild ? { nitro: { preset: "node-server" } } : {}),
