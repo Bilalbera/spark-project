@@ -134,3 +134,7 @@
     transparent 85%
   );
 }
+
+#lovable-badge {
+  display: none !important;
+}
