@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { lovable } from "@/integrations/lovable";
+import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 
@@ -26,8 +26,11 @@ function LoginPage() {
 
   async function google() {
     setBusy(true);
-    const res = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin + "/giris" });
-    if (res.error) { toast.error("Giriş yapılamadı, tekrar dene."); setBusy(false); }
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/giris` },
+    });
+    if (error) { toast.error("Giriş yapılamadı, tekrar dene."); setBusy(false); }
   }
 
   return (
