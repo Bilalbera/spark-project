@@ -6,5 +6,5 @@
 - [x] Kurucu paneli ve içerik yönetimi
 - [x] Son ekran kontrolleri ve mobil cilalama
 - [x] Tekrarlayan çevrim içi paket açma hatasını kalıcı olarak gider
-- [ ] Mevcut web uygulamasını güvenli Electron kabuğuyla Windows için paketle
+- [x] Mevcut web uygulamasını güvenli Electron kabuğuyla Windows için paketle
 - [ ] Windows paketleme komutlarını ve çıktısını doğrula

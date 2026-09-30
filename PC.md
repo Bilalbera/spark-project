@@ -1,57 +1,31 @@
 # Bilal Efendi — Windows (PC) Uygulaması
 
-Bu klasördeki `electron/main.cjs` dosyası, mevcut Bilal Efendi web sitesini
-açan bir Windows masaüstü uygulaması oluşturur. Sitede yaptığınız her
-değişiklik uygulamada otomatik görünür; uygulamayı yeniden derlemeniz gerekmez.
+Uygulama, projenin kendi üretim derlemesini bilgisayarda yerel olarak çalıştırır
+(lovable.app adresini açmaz, yayın rozeti görünmez). Veriler ve giriş uzak
+serviste kalır.
 
 ## Gerekenler
+- Windows 10/11
+- Node.js (LTS)
 
-- Windows bilgisayar
-- [Node.js](https://nodejs.org) (LTS sürümü)
-
-## Kurulum ve çalıştırma
-
-Proje klasöründe bir terminal (PowerShell) açın:
-
+## İlk kurulum (proje klasöründe, PowerShell)
 ```powershell
+npm install
 npm install --save-dev electron electron-builder
-npx electron electron/main.cjs
 ```
 
-Uygulama penceresi açılır ve siteyi gösterir.
-
-## Kurulum dosyası (.exe) üretme
-
-`package.json` içine şunu ekleyin:
-
-```json
-"main": "electron/main.cjs",
-"scripts": {
-  "pc:start": "electron .",
-  "pc:build": "electron-builder --win"
-},
-"build": {
-  "appId": "app.bilalefendi.pc",
-  "productName": "Bilal Efendi",
-  "win": { "target": "nsis" }
-}
+## Geliştirme
+```powershell
+npm run pc:start
 ```
 
-Sonra:
-
+## Kurulum dosyası (.exe)
 ```powershell
 npm run pc:build
 ```
+Sonuç: `dist/Bilal Efendi Setup.exe`
 
-`dist/` klasöründe `Bilal Efendi Setup.exe` oluşur. Bu dosyayı istediğiniz
-bilgisayara kurabilirsiniz.
-
-## Yayın adresi
-
-Uygulama şu an önizleme adresini açıyor. Siteyi yayınladıktan sonra
-`electron/main.cjs` içindeki `APP_URL` değerini yayınlanan adresle değiştirin.
-
-## Not
-
-Google ile giriş bazı masaüstü uygulamalarında engellenebilir. Öyle olursa
-girişi normal tarayıcıda açacak şekilde ayarlayabilirim — bana söylemeniz yeterli.
+## Google ile giriş
+Masaüstünde Google girişi küçük bir pencerede açılır ve tamamlanınca uygulamaya
+geri döner. Bunun çalışması için Google girişinin Lovable Cloud'da açık olması
+gerekir: Cloud → Users → Authentication → Google.
