@@ -9,3 +9,10 @@ node_modules/
 !vendor/seroval/dist/**
 dist/
 node_modules/
+!vendor/seroval-plugins/dist/
+!vendor/seroval-plugins/dist/**
+!vendor/unplugin/dist/
+!vendor/unplugin/dist/**
+!vendor/@tanstack_router-core/dist/
+!vendor/@tanstack_router-core/dist/**
+!vendor/tanstack_router-core/dist/**
