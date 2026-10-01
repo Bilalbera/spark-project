@@ -13,3 +13,4 @@
 - Nitro ile doğrudan yükleme bağımlılıkları `ohash` ve `@tanstack/query-core`, `vendor/` altındaki doğrulanmış açılmış paketlerden kurulur; uzak paket önbelleğindeki eksik dosyalar derlemeyi bozmasın.
 - `@tanstack/query-core` is aliased in vite.config.ts to `vendor/query-core`; publish installs left its node_modules copy incomplete.
 - Google girişi doğrudan `supabase.auth.signInWithOAuth` ile yapılır (Lovable OAuth aracı kullanılmaz); Vercel'de `/~oauth/initiate` adresi olmadığı için.
+- `seroval`, `seroval-plugins`, `unplugin`, `@tanstack/router-core` are restored from `vendor/` by `scripts/restore-vendor.cjs` after install; remote installs left them missing files.
