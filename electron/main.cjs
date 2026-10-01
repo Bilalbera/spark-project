@@ -11,9 +11,6 @@ const { pathToFileURL } = require("node:url");
 
 const PROD_PORT = 47823;
 const DEV_PORT = 47824;
-// Google girişinin geri döneceği, giriş servisinde tanımlı adres.
-const AUTH_HOST = "https://bilalefendi-app.vercel.app/";
-const AUTH_RETURN = AUTH_HOST + "/giris";
 const CHROME_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
