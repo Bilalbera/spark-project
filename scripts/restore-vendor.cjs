@@ -3,7 +3,7 @@
 const f = require("fs");
 const nested = "node_modules/@lovable.dev/vite-tanstack-config/node_modules/nitro";
 if (!f.existsSync(nested + "/package.json")) f.rmSync(nested, { recursive: true, force: true });
-const map = { seroval: "seroval", "seroval-plugins": "seroval-plugins", unplugin: "unplugin", "@tanstack/router-core": "@tanstack_router-core" };
+const map = { "@tanstack/query-core": "query-core", seroval: "seroval", "seroval-plugins": "seroval-plugins", unplugin: "unplugin", "@tanstack/router-core": "@tanstack_router-core" };
 for (const [name, dir] of Object.entries(map)) {
   const src = "vendor/" + dir;
   if (!f.existsSync(src)) continue;
