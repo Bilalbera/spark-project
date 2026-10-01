@@ -15,9 +15,13 @@ const queryCore = fileURLToPath(
 
 // Windows desktop build (npm run pc:build) runs a local Node server instead of the edge target.
 const electronBuild = process.env['ELECTRON_BUILD'] === "1";
+// Vercel sets VERCEL=1 during its builds; emit Vercel's output format so every
+// page (e.g. /giris) is served by the app server instead of returning 404.
+const vercelBuild = !electronBuild && !!process.env['VERCEL'];
 
 export default defineConfig({
   ...(electronBuild ? { nitro: { preset: "node-server" } } : {}),
+  ...(vercelBuild ? { nitro: { preset: "vercel" } } : {}),
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
     // nitro/vite builds from this
