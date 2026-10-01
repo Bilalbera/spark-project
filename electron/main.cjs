@@ -11,9 +11,6 @@ const { pathToFileURL } = require("node:url");
 
 const PROD_PORT = 47823;
 const DEV_PORT = 47824;
-// Google girişinin geri döneceği, giriş servisinde tanımlı adres.
-const AUTH_HOST = "https://bilalefendi-app.vercel.app/";
-const AUTH_RETURN = AUTH_HOST + "/giris";
 const CHROME_UA =
   "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
 
@@ -66,13 +63,15 @@ async function startDevServer() {
   await waitFor(appUrl + "/");
 }
 
-// Google girişi: giriş servisini ayrı bir pencerede açar, dönüşteki oturum
-// bilgisini yakalayıp yerel uygulamaya aktarır.
-function startGoogleLogin(initiateUrl) {
-  const src = new URL(initiateUrl);
-  const params = new URLSearchParams(src.search);
-  params.set("redirect_uri", AUTH_RETURN);
-  params.delete("response_mode");
+// Google girişi: uygulama doğrudan giriş servisinin (Supabase) Google adresine
+// gider. Bunu ayrı bir pencerede açar, dönüşte (yerel /giris adresine) gelen
+// oturum bilgisini ana pencereye aktarırız.
+function isSupabaseAuthorize(url) {
+  return /\.supabase\.co\/auth\/v1\/authorize/.test(url);
+}
+
+function startGoogleLogin(authorizeUrl) {
+  const returnPrefix = appUrl + "/giris";
   const authWin = new BrowserWindow({
     width: 520,
     height: 700,
@@ -85,18 +84,16 @@ function startGoogleLogin(initiateUrl) {
   authWin.webContents.setUserAgent(CHROME_UA);
   let done = false;
   const check = (event, url) => {
-    if (done || !url.startsWith(AUTH_RETURN)) return;
-    const hash = url.includes("#") ? url.slice(url.indexOf("#")) : "";
-    if (!hash) return;
+    if (done || !url.startsWith(returnPrefix)) return;
     done = true;
     if (event && event.preventDefault) event.preventDefault();
     authWin.close();
-    mainWin.loadURL(appUrl + "/giris" + hash);
+    mainWin.loadURL(url);
   };
   authWin.webContents.on("will-redirect", check);
   authWin.webContents.on("will-navigate", check);
   authWin.webContents.on("did-navigate", (e, url) => check(null, url));
-  authWin.loadURL(`${AUTH_HOST}/~oauth/initiate?${params.toString()}`);
+  authWin.loadURL(authorizeUrl);
 }
 
 function isInternal(url) {
@@ -121,7 +118,7 @@ function createWindow() {
   });
 
   mainWin.webContents.on("will-navigate", (event, url) => {
-    if (url.includes("/~oauth/initiate")) {
+    if (isSupabaseAuthorize(url)) {
       event.preventDefault();
       startGoogleLogin(url);
       return;
@@ -133,7 +130,7 @@ function createWindow() {
   });
 
   mainWin.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.includes("/~oauth/initiate")) {
+    if (isSupabaseAuthorize(url)) {
       startGoogleLogin(url);
       return { action: "deny" };
     }

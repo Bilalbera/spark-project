@@ -7,3 +7,12 @@ node_modules/
 !vendor/query-core/build/**
 dist/
 node_modules/
+!vendor/seroval-plugins/dist/
+!vendor/seroval-plugins/dist/**
+!vendor/unplugin/dist/
+!vendor/unplugin/dist/**
+!vendor/@tanstack_router-core/dist/
+!vendor/@tanstack_router-core/dist/**
+!vendor/tanstack_router-core/dist/**
+!vendor/seroval/dist/
+!vendor/seroval/dist/**
