@@ -7,5 +7,8 @@ const map = { seroval: "seroval", "seroval-plugins": "seroval-plugins", unplugin
 for (const [name, dir] of Object.entries(map)) {
   const src = "vendor/" + dir;
   if (!f.existsSync(src)) continue;
-  f.cpSync(src, "node_modules/" + name, { recursive: true, force: true });
+  const dest = "node_modules/" + name;
+  try { if (f.realpathSync(dest) === f.realpathSync(src)) continue; } catch {}
+  f.rmSync(dest, { recursive: true, force: true });
+  f.cpSync(src, dest, { recursive: true });
 }
