@@ -16,3 +16,4 @@ node_modules/
 !vendor/tanstack_router-core/dist/**
 !vendor/seroval/dist/
 !vendor/seroval/dist/**
+.vercel/
