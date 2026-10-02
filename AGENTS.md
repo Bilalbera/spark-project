@@ -14,3 +14,4 @@
 - `@tanstack/query-core` is aliased in vite.config.ts to `vendor/query-core`; publish installs left its node_modules copy incomplete.
 - Google girişi doğrudan `supabase.auth.signInWithOAuth` ile yapılır (Lovable OAuth aracı kullanılmaz); Vercel'de `/~oauth/initiate` adresi olmadığı için.
 - `seroval`, `seroval-plugins`, `unplugin`, `@tanstack/router-core` are restored from `vendor/` by `scripts/restore-vendor.cjs` after install; remote installs left them missing files.
+- Vercel builds (VERCEL=1) use the nitro `vercel` preset in vite.config.ts; the default edge output made Vercel 404 every page.
