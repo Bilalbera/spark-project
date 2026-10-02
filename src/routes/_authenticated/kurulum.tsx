@@ -39,9 +39,9 @@ export function ProfileForm({ onDone, submitLabel }: { onDone: () => void; submi
     if (!/^[a-z0-9_.]{3,20}$/.test(u)) { toast.error("Kullanıcı adı 3-20 karakter; harf, rakam, _ ve . içerebilir."); return; }
     if (!displayName.trim()) { toast.error("Görünen ad gerekli."); return; }
     setBusy(true);
-    const { error } = await supabase.from("profiles").update({ username: u, display_name: displayName.trim(), bio: bio.trim() || null, avatar_url: avatar, onboarded: true }).eq("id", user!.id);
+    const { error } = await supabase.from("profiles").upsert({ id: user!.id, email: user!.email ?? null, username: u, display_name: displayName.trim(), bio: bio.trim() || null, avatar_url: avatar, onboarded: true }, { onConflict: "id" });
     setBusy(false);
-    if (error) { toast.error(error.code === "23505" ? "Bu kullanıcı adı alınmış." : "Kaydedilemedi."); return; }
+    if (error) { console.error("Profil kaydı hatası:", error.message, error); toast.error(error.code === "23505" ? "Bu kullanıcı adı alınmış." : "Kaydedilemedi."); return; }
     await qc.invalidateQueries({ queryKey: ["my-profile"] });
     toast.success("Profil kaydedildi");
     onDone();
