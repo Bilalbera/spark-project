@@ -22,13 +22,17 @@ function LoginPage() {
   const { user } = useSession();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
-  useEffect(() => { if (user) navigate({ to: "/" }); }, [user, navigate]);
+  useEffect(() => { if (user) navigate({ to: "/", replace: true }); }, [user, navigate]);
 
   async function google() {
     setBusy(true);
+    // Fixed production domain on Vercel (set VITE_SITE_URL); otherwise the current origin.
+    const host = window.location.hostname;
+    const siteUrl = (import.meta.env["VITE_SITE_URL"] as string | undefined)?.replace(/\/$/, "");
+    const base = siteUrl && host.endsWith(".vercel.app") ? siteUrl : window.location.origin;
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/giris` },
+      options: { redirectTo: `${base}/giris` },
     });
     if (error) { toast.error("Giriş yapılamadı, tekrar dene."); setBusy(false); }
   }

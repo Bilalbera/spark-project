@@ -47,7 +47,27 @@ export function useAuth() {
         .eq("id", user!.id)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      if (data) return data;
+      // Fallback: profile row missing (trigger not applied yet) — create it.
+      const meta = (user!.user_metadata ?? {}) as Record<string, string | undefined>;
+      const { data: created, error: insErr } = await supabase
+        .from("profiles")
+        .upsert(
+          {
+            id: user!.id,
+            email: user!.email ?? null,
+            display_name: meta.full_name ?? meta.name ?? user!.email?.split("@")[0] ?? null,
+            avatar_url: meta.avatar_url ?? meta.picture ?? null,
+          },
+          { onConflict: "id", ignoreDuplicates: true },
+        )
+        .select("*")
+        .maybeSingle();
+      if (insErr) {
+        console.error("Profil oluşturulamadı", insErr);
+        return null;
+      }
+      return created ?? null;
     },
   });
 
