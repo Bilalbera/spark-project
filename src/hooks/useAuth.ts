@@ -56,8 +56,8 @@ export function useAuth() {
           {
             id: user!.id,
             email: user!.email ?? null,
-            display_name: meta.full_name ?? meta.name ?? user!.email?.split("@")[0] ?? null,
-            avatar_url: meta.avatar_url ?? meta.picture ?? null,
+            display_name: meta["full_name"] ?? meta["name"] ?? user!.email?.split("@")[0] ?? null,
+            avatar_url: meta["avatar_url"] ?? meta["picture"] ?? null,
           },
           { onConflict: "id", ignoreDuplicates: true },
         )
