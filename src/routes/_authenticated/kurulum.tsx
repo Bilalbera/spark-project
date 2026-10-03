@@ -53,7 +53,7 @@ export function ProfileForm({ onDone, submitLabel }: { onDone: () => void; submi
         <UserAvatar p={{ avatar_url: avatar, display_name: displayName }} size={72} />
         <label className="cursor-pointer text-sm text-primary">
           Avatar değiştir
-          <input type="file" accept="image/*" className="hidden" onChange={async (e) => {
+          <input type="file" accept=".jpg,.jpeg,image/jpeg,image/png,image/webp" className="hidden" onChange={async (e) => {
             const f = e.target.files?.[0]; if (!f) return;
             try { setAvatar(await uploadImage(f, user!.id)); } catch { toast.error("Yüklenemedi"); }
           }} />
