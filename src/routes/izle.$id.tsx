@@ -101,7 +101,7 @@ function Watch() {
       <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
         <div>
           {ep.series && <Link to="/seri/$slug" params={{ slug: ep.series.slug }} className="text-sm font-semibold text-primary">{ep.series.title} • Sezon {ep.seasons?.number}</Link>}
-          <h1 className="mt-1 text-2xl font-bold">{ep.number}. {ep.title}</h1>
+          <h1 className="mt-1 text-2xl font-bold">{ep.number > 0 && `${ep.number}. `}{ep.title}</h1>
           <p className="text-sm text-muted-foreground">{formatCount(ep.view_count)} görüntülenme</p>
         </div>
         <div className="flex flex-wrap gap-2">
