@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AraRouteImport } from './routes/ara'
 import { Route as GirisRouteImport } from './routes/giris'
 import { Route as KategorilerRouteImport } from './routes/kategoriler'
+import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as SerilerRouteImport } from './routes/seriler'
 import { Route as AuthenticatedArkadaslarRouteImport } from './routes/_authenticated/arkadaslar'
 import { Route as AuthenticatedKurucuRouteImport } from './routes/_authenticated/kurucu'
@@ -52,6 +53,11 @@ const GirisRoute = GirisRouteImport.update({
 const KategorilerRoute = KategorilerRouteImport.update({
   id: '/kategoriler',
   path: '/kategoriler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SerilerRoute = SerilerRouteImport.update({
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/ara': typeof AraRoute
   '/giris': typeof GirisRoute
   '/kategoriler': typeof KategorilerRoute
+  '/premium': typeof PremiumRoute
   '/seriler': typeof SerilerRoute
   '/arkadaslar': typeof AuthenticatedArkadaslarRoute
   '/kurucu': typeof AuthenticatedKurucuRouteWithChildren
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/ara': typeof AraRoute
   '/giris': typeof GirisRoute
   '/kategoriler': typeof KategorilerRoute
+  '/premium': typeof PremiumRoute
   '/seriler': typeof SerilerRoute
   '/arkadaslar': typeof AuthenticatedArkadaslarRoute
   '/kurulum': typeof AuthenticatedKurulumRoute
@@ -184,6 +192,7 @@ export interface FileRoutesById {
   '/ara': typeof AraRoute
   '/giris': typeof GirisRoute
   '/kategoriler': typeof KategorilerRoute
+  '/premium': typeof PremiumRoute
   '/seriler': typeof SerilerRoute
   '/_authenticated/arkadaslar': typeof AuthenticatedArkadaslarRoute
   '/_authenticated/kurucu': typeof AuthenticatedKurucuRouteWithChildren
@@ -207,6 +216,7 @@ export interface FileRouteTypes {
     | '/ara'
     | '/giris'
     | '/kategoriler'
+    | '/premium'
     | '/seriler'
     | '/arkadaslar'
     | '/kurucu'
@@ -228,6 +238,7 @@ export interface FileRouteTypes {
     | '/ara'
     | '/giris'
     | '/kategoriler'
+    | '/premium'
     | '/seriler'
     | '/arkadaslar'
     | '/kurulum'
@@ -249,6 +260,7 @@ export interface FileRouteTypes {
     | '/ara'
     | '/giris'
     | '/kategoriler'
+    | '/premium'
     | '/seriler'
     | '/_authenticated/arkadaslar'
     | '/_authenticated/kurucu'
@@ -272,6 +284,7 @@ export interface RootRouteChildren {
   AraRoute: typeof AraRoute
   GirisRoute: typeof GirisRoute
   KategorilerRoute: typeof KategorilerRoute
+  PremiumRoute: typeof PremiumRoute
   SerilerRoute: typeof SerilerRoute
   IzleIdRoute: typeof IzleIdRoute
   SeriSlugRoute: typeof SeriSlugRoute
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       path: '/kategoriler'
       fullPath: '/kategoriler'
       preLoaderRoute: typeof KategorilerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/seriler': {
@@ -470,6 +490,7 @@ const rootRouteChildren: RootRouteChildren = {
   AraRoute: AraRoute,
   GirisRoute: GirisRoute,
   KategorilerRoute: KategorilerRoute,
+  PremiumRoute: PremiumRoute,
   SerilerRoute: SerilerRoute,
   IzleIdRoute: IzleIdRoute,
   SeriSlugRoute: SeriSlugRoute,

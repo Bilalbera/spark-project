@@ -17,6 +17,7 @@ const links = [
   { to: "/", label: "Ana Sayfa" },
   { to: "/seriler", label: "Seriler" },
   { to: "/kategoriler", label: "Kategoriler" },
+  { to: "/premium", label: "Premium" },
 ] as const;
 
 export function Navbar() {
