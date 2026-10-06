@@ -86,7 +86,7 @@ function SeriesDetail() {
                     {pct > 0 && <div className="absolute inset-x-0 bottom-0 h-1 bg-muted"><div className="h-full bg-primary" style={{ width: `${pct * 100}%` }} /></div>}
                   </div>
                   <div className="min-w-0 py-1">
-                    <p className="font-semibold">{e.number}. {e.title} {e.is_new && <span className="ml-2 rounded bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">YENİ</span>}</p>
+                    <p className="font-semibold">{e.number > 0 && `${e.number}. `}{e.title} {e.is_new && <span className="ml-2 rounded bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">YENİ</span>}</p>
                     <p className="text-xs text-muted-foreground">{formatDuration(e.duration_seconds)}</p>
                     {e.description && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{e.description}</p>}
                   </div>

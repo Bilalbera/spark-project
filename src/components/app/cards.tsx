@@ -73,7 +73,7 @@ export function EpisodeCard({
         )}
       </div>
       <p className="mt-2 line-clamp-1 text-sm font-semibold">
-        {e.number}. {e.title}
+        {e.number > 0 && `${e.number}. `}{e.title}
       </p>
       {subtitle && <p className="line-clamp-1 text-xs text-muted-foreground">{subtitle}</p>}
     </Link>
