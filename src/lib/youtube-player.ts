@@ -34,27 +34,23 @@ interface YouTubeAPI {
   }) => YouTubePlayer;
 }
 
-declare global {
-  interface Window {
-    YT?: YouTubeAPI;
-    onYouTubeIframeAPIReady?: () => void;
-  }
-}
+type YouTubeWindow = Window & { YT?: YouTubeAPI; onYouTubeIframeAPIReady?: (() => void) | undefined };
 
 let pending: Promise<YouTubeAPI> | undefined;
 
 // One script for all episodes; no polling or repeated global callback chains.
 export function loadYouTubeAPI(): Promise<YouTubeAPI> {
-  if (window.YT?.Player) return Promise.resolve(window.YT);
+  const youtubeWindow = window as YouTubeWindow;
+  if (youtubeWindow.YT?.Player) return Promise.resolve(youtubeWindow.YT);
   if (pending) return pending;
   pending = new Promise<YouTubeAPI>((resolve, reject) => {
-    const previous = window.onYouTubeIframeAPIReady;
+    const previous = youtubeWindow.onYouTubeIframeAPIReady;
     const existing = document.getElementById("yt-api");
     const script = existing instanceof HTMLScriptElement ? existing : document.createElement("script");
     const cleanup = () => {
       clearTimeout(timeout);
       script.removeEventListener("error", fail);
-      if (window.onYouTubeIframeAPIReady === ready) window.onYouTubeIframeAPIReady = previous;
+      if (youtubeWindow.onYouTubeIframeAPIReady === ready) youtubeWindow.onYouTubeIframeAPIReady = previous;
     };
     const fail = () => {
       cleanup();
@@ -65,11 +61,11 @@ export function loadYouTubeAPI(): Promise<YouTubeAPI> {
     const ready = () => {
       cleanup();
       previous?.();
-      if (window.YT?.Player) resolve(window.YT);
+      if (youtubeWindow.YT?.Player) resolve(youtubeWindow.YT);
       else fail();
     };
     const timeout = setTimeout(fail, 15_000);
-    window.onYouTubeIframeAPIReady = ready;
+    youtubeWindow.onYouTubeIframeAPIReady = ready;
     script.addEventListener("error", fail, { once: true });
     if (!existing) {
       script.id = "yt-api";
