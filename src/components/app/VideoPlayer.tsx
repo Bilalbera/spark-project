@@ -48,7 +48,9 @@ export function VideoPlayer({ videoId, title, getStart, onProgress }: VideoPlaye
     setVisible(true);
     clearTimeout(hideTimer.current);
     hideTimer.current = setTimeout(() => {
-      if (playingRef.current && !menuRef.current && !seeking.current && !container.current?.contains(document.activeElement)) setVisible(false);
+      const focused = document.activeElement;
+      const keyboardFocus = focused instanceof HTMLElement && focused.matches(":focus-visible") && container.current?.contains(focused);
+      if (playingRef.current && !menuRef.current && !seeking.current && !keyboardFocus) setVisible(false);
     }, 3000);
   }, []);
 
@@ -70,8 +72,9 @@ export function VideoPlayer({ videoId, title, getStart, onProgress }: VideoPlaye
   const toggleMute = useCallback(() => {
     const p = player.current;
     if (!p) return;
-    if (p.isMuted()) { p.unMute(); if (p.getVolume() === 0) p.setVolume(50); } else p.mute();
-    setMuted(p.isMuted()); setVolume(p.getVolume()); reveal();
+    const nextMuted = !p.isMuted();
+    if (!nextMuted) { p.unMute(); if (p.getVolume() === 0) p.setVolume(50); } else p.mute();
+    setMuted(nextMuted); setVolume(p.getVolume()); reveal();
   }, [reveal]);
   const toggleFullscreen = useCallback(async () => {
     try {
