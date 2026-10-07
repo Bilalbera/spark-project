@@ -15,3 +15,5 @@
 - Google girişi doğrudan `supabase.auth.signInWithOAuth` ile yapılır (Lovable OAuth aracı kullanılmaz); Vercel'de `/~oauth/initiate` adresi olmadığı için.
 - `seroval`, `seroval-plugins`, `unplugin`, `@tanstack/router-core` are restored from `vendor/` by `scripts/restore-vendor.cjs` after install; remote installs left them missing files.
 - Vercel builds (VERCEL=1) use the nitro `vercel` preset in vite.config.ts; the default edge output made Vercel 404 every page.
+- Keep YouTube lifecycle and custom controls in VideoPlayer, with progress persistence supplied by the watch route; this isolates UI changes from existing history and completion rules.
+- Allow dropdown portals to target the player container so settings remain accessible in browser fullscreen.
