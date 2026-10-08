@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/site-client";
 
 /** Uploads an image to the private media bucket and returns a long-lived signed URL. */
 export async function uploadImage(file: File, folder: string) {

@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Bell, Menu, Search, LogOut, User, Users, MessageCircle, Crown } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/site-client";
 import { useAuth } from "@/hooks/useAuth";
 import { relativeTime } from "@/lib/format";
 import { Button } from "@/components/ui/button";

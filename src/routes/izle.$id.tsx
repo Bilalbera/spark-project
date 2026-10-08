@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Heart, Plus, Check, ThumbsUp, Share2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/site-client";
 import { useSession } from "@/hooks/useAuth";
 import { useToggle } from "@/hooks/useToggles";
 import { Button } from "@/components/ui/button";

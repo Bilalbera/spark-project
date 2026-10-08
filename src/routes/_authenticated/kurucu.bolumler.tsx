@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { ChevronDown, ChevronRight, Pencil, Plus, Trash2, Upload, Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/site-client";
 import { uploadVideo } from "@/lib/upload";
 import { isDirectVideo } from "@/lib/native-video-player";
 import { AdminHeading } from "@/components/app/AdminShell";

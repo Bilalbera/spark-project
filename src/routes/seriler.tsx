@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/site-client";
 import { EmptyState, SeriesCard } from "@/components/app/cards";
 
 export const Route = createFileRoute("/seriler")({

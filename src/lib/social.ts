@@ -1,4 +1,4 @@
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/site-client";
 
 export type MiniProfile = { id: string; username: string | null; display_name: string | null; avatar_url: string | null; last_seen: string };
 

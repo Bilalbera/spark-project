@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, Eye, Film, PlaySquare } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/site-client";
 import { AdminHeading, MetricCard } from "@/components/app/AdminShell";
 
 export const Route = createFileRoute("/_authenticated/kurucu/istatistikler")({ head: () => ({ meta: [{ title: "İstatistikler — Bilal Efendi" }, { name: "description", content: "İzlenme performansını ve öne çıkan içerikleri inceleyin." }, { property: "og:title", content: "İstatistikler — Bilal Efendi" }, { property: "og:description", content: "İzlenme performansını inceleyin." }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary_large_image" }] }), component: Stats });
