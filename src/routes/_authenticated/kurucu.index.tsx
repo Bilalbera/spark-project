@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, Eye, Film, MessageCircle, PlaySquare, Users } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/site-client";
 import { AdminHeading, MetricCard } from "@/components/app/AdminShell";
 import { Button } from "@/components/ui/button";
 

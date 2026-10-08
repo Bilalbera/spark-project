@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Play } from "lucide-react";
 import type { ReactNode } from "react";
-import type { Tables } from "@/integrations/supabase/types";
+import type { Tables } from "@/lib/site-database.types";
 import { formatDuration, youtubeThumb } from "@/lib/format";
 import { cn } from "@/lib/utils";
 

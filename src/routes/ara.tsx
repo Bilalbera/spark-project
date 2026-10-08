@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Search } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/lib/site-client";
 import { useSession } from "@/hooks/useAuth";
 import { Input } from "@/components/ui/input";
 import { EpisodeCard, SeriesCard, UserAvatar } from "@/components/app/cards";

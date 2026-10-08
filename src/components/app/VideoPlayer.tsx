@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { loadYouTubeAPI, playerTime, videoError, type YouTubePlayer } from "@/lib/youtube-player";
+import { loadYouTubeAPI, playerTime, videoError } from "@/lib/youtube-player";
+import { nativePlayback, type PlaybackControls } from "@/lib/native-video-player";
 
 interface VideoPlayerProps {
   videoId: string;
+  videoUrl?: string;
   title: string;
   getStart: () => Promise<number>;
   onProgress: (position: number, duration: number) => void;
@@ -17,10 +19,10 @@ function Control({ label, children, ...props }: React.ComponentProps<typeof Butt
   return <Tooltip><TooltipTrigger asChild><Button type="button" variant="ghost" size="icon" aria-label={label} className="video-control size-11 shrink-0" {...props}>{children}</Button></TooltipTrigger><TooltipContent>{label}</TooltipContent></Tooltip>;
 }
 
-export function VideoPlayer({ videoId, title, getStart, onProgress }: VideoPlayerProps) {
+export function VideoPlayer({ videoId, videoUrl, title, getStart, onProgress }: VideoPlayerProps) {
   const container = useRef<HTMLDivElement>(null);
   const holder = useRef<HTMLDivElement>(null);
-  const player = useRef<YouTubePlayer | null>(null);
+  const player = useRef<PlaybackControls | null>(null);
   const progressCallback = useRef(onProgress);
   progressCallback.current = onProgress;
   const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -87,7 +89,8 @@ export function VideoPlayer({ videoId, title, getStart, onProgress }: VideoPlaye
 
   useEffect(() => {
     let cancelled = false;
-    let local: YouTubePlayer | null = null;
+    let local: PlaybackControls | null = null;
+    let cleanupNative: (() => void) | undefined;
     let readyTimer: ReturnType<typeof setTimeout> | undefined;
     let ticker: ReturnType<typeof setInterval> | undefined;
     let lastSave = Date.now();
@@ -108,6 +111,50 @@ export function VideoPlayer({ videoId, title, getStart, onProgress }: VideoPlaye
     setError(""); setReady(false); setState(-1); setVisible(true);
     void (async () => {
       try {
+        if (videoUrl) {
+          if (!holder.current) return;
+          const video = document.createElement("video");
+          video.controls = false; video.playsInline = true; video.preload = "metadata";
+          video.className = "h-full w-full object-contain";
+          video.setAttribute("aria-label", title);
+          video.setAttribute("disablePictureInPicture", "");
+          const start = getStart().catch(() => 0);
+          local = nativePlayback(video);
+          const stateChange = () => {
+            if (cancelled || !local) return;
+            const next = local.getPlayerState();
+            setState(next); playingRef.current = next === 1; reveal(); sample(); stopTicker();
+            if (next === 1 || next === 3) ticker = setInterval(sample, 500);
+            if (next === 2 || next === 0) save();
+          };
+          const metadata = () => {
+            void start.then((seconds) => {
+              if (cancelled || !local || initialized) return;
+              initialized = true; player.current = local;
+              if (seconds > 0) video.currentTime = Math.min(seconds, Math.max(0, local.getDuration() - 1));
+              setReady(true); setError(""); setRates(local.getAvailablePlaybackRates()); setRate(video.playbackRate);
+              sample(); stateChange();
+            });
+          };
+          const fail = () => {
+            if (cancelled) return;
+            playingRef.current = false; stopTicker();
+            setError(video.error?.code === 4 ? "Video biçimi bu tarayıcıda desteklenmiyor. H.264 görüntü ve AAC ses içeren MP4 kullanın." : "Video yüklenemedi. Bağlantınızı ve video dosyasının erişimini kontrol edin.");
+          };
+          const rateChange = () => setRate(video.playbackRate);
+          const events = ["playing", "pause", "ended", "waiting", "seeked", "volumechange", "progress"];
+          events.forEach((event) => video.addEventListener(event, stateChange));
+          video.addEventListener("loadedmetadata", metadata);
+          video.addEventListener("error", fail);
+          video.addEventListener("ratechange", rateChange);
+          cleanupNative = () => {
+            events.forEach((event) => video.removeEventListener(event, stateChange));
+            video.removeEventListener("loadedmetadata", metadata); video.removeEventListener("error", fail); video.removeEventListener("ratechange", rateChange);
+          };
+          holder.current.replaceChildren(video);
+          video.src = videoUrl;
+          return;
+        }
         const [YT, start] = await Promise.all([loadYouTubeAPI(), getStart().catch(() => 0)]);
         if (cancelled || !holder.current) return;
         const element = document.createElement("div");
@@ -147,9 +194,10 @@ export function VideoPlayer({ videoId, title, getStart, onProgress }: VideoPlaye
       save(); cancelled = true; stopTicker(); clearTimeout(readyTimer); clearTimeout(hideTimer.current);
       document.removeEventListener("visibilitychange", onVisibility); window.removeEventListener("pagehide", onPageHide);
       player.current = null; playingRef.current = false;
+      cleanupNative?.();
       try { local?.destroy(); } catch { /* Already removed by navigation. */ }
     };
-  }, [videoId, title, getStart, attempt, reveal]);
+  }, [videoId, videoUrl, title, getStart, attempt, reveal]);
 
   useEffect(() => {
     const onFullscreen = () => setFullscreen(document.fullscreenElement === container.current);
@@ -173,7 +221,7 @@ export function VideoPlayer({ videoId, title, getStart, onProgress }: VideoPlaye
   const menuChange = (open: boolean) => { menuRef.current = open; reveal(); };
   // YouTube removed reliable resolution discovery/selection from its public IFrame API.
   // Do not call getAvailableQualityLevels/setPlaybackQuality or invent resolution options.
-  // The current schema contains only youtube_url, not direct MP4/HLS/DASH renditions.
+  // Uploaded MP4 URLs reuse the existing source field. A single MP4 has no alternate quality renditions.
   // Likewise no documented caption-track discovery exists: do not show a fake CC toggle.
   // rel=0 limits recommendations to the same channel; it does NOT remove YouTube branding/end screens.
   return (
@@ -198,8 +246,8 @@ export function VideoPlayer({ videoId, title, getStart, onProgress }: VideoPlaye
               <span className="min-w-0 whitespace-nowrap px-1 text-[10px] tabular-nums sm:px-2 sm:text-xs">{playerTime(position)} / {playerTime(duration)}</span>
               <div className="flex-1" />
               <div className="hidden items-center sm:flex"><Control label={muted || volume === 0 ? "Sesi aç" : "Sessize al"} disabled={!ready} onClick={toggleMute}>{muted || volume === 0 ? <VolumeX /> : <Volume2 />}</Control><Slider aria-label="Ses seviyesi" min={0} max={100} step={1} value={[muted ? 0 : volume]} disabled={!ready} className="mr-2 w-16" onValueChange={([value = 0]) => { player.current?.setVolume(value); player.current?.unMute(); setVolume(value); setMuted(false); reveal(); }} /></div>
-              <DropdownMenu onOpenChange={menuChange}><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="video-control hidden size-11 sm:inline-flex" aria-label="Kalite" disabled={!ready}><Gauge /></Button></DropdownMenuTrigger><DropdownMenuContent container={container.current} side="top" align="end" className="w-60"><DropdownMenuLabel>Kalite</DropdownMenuLabel><DropdownMenuItem disabled>Otomatik · YouTube</DropdownMenuItem><p className="px-2 pb-2 text-xs text-muted-foreground">Çözünürlük bağlantınıza göre YouTube tarafından otomatik ayarlanır.</p></DropdownMenuContent></DropdownMenu>
-              <DropdownMenu onOpenChange={menuChange}><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="video-control size-11" aria-label="Ayarlar" disabled={!ready}><Settings /></Button></DropdownMenuTrigger><DropdownMenuContent container={container.current} side="top" align="end" className="w-60"><DropdownMenuLabel>Ayarlar</DropdownMenuLabel><DropdownMenuItem onSelect={toggleMute}>{muted || volume === 0 ? <VolumeX /> : <Volume2 />}{muted || volume === 0 ? "Sesi aç" : "Sessize al"}</DropdownMenuItem><div className="px-3 py-3"><Slider aria-label="Ses seviyesi (ayarlar)" min={0} max={100} value={[muted ? 0 : volume]} onValueChange={([value = 0]) => { player.current?.setVolume(value); player.current?.unMute(); setVolume(value); setMuted(false); }} /></div><DropdownMenuSeparator /><DropdownMenuLabel>Kalite · Otomatik</DropdownMenuLabel><p className="px-2 pb-2 text-xs text-muted-foreground">YouTube tarafından ayarlanır.</p>{rates.length > 1 && <><DropdownMenuSeparator /><DropdownMenuLabel>Oynatma hızı</DropdownMenuLabel><DropdownMenuRadioGroup value={String(rate)} onValueChange={(value) => player.current?.setPlaybackRate(Number(value))}>{rates.map((r) => <DropdownMenuRadioItem key={r} value={String(r)}>{r === 1 ? "Normal" : `${r}×`}</DropdownMenuRadioItem>)}</DropdownMenuRadioGroup></>}</DropdownMenuContent></DropdownMenu>
+              {!videoUrl && <DropdownMenu onOpenChange={menuChange}><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="video-control hidden size-11 sm:inline-flex" aria-label="Kalite" disabled={!ready}><Gauge /></Button></DropdownMenuTrigger><DropdownMenuContent container={container.current} side="top" align="end" className="w-60"><DropdownMenuLabel>Kalite</DropdownMenuLabel><DropdownMenuItem disabled>Otomatik · YouTube</DropdownMenuItem><p className="px-2 pb-2 text-xs text-muted-foreground">Çözünürlük bağlantınıza göre YouTube tarafından otomatik ayarlanır.</p></DropdownMenuContent></DropdownMenu>}
+              <DropdownMenu onOpenChange={menuChange}><DropdownMenuTrigger asChild><Button variant="ghost" size="icon" className="video-control size-11" aria-label="Ayarlar" disabled={!ready}><Settings /></Button></DropdownMenuTrigger><DropdownMenuContent container={container.current} side="top" align="end" className="w-60"><DropdownMenuLabel>Ayarlar</DropdownMenuLabel><DropdownMenuItem onSelect={toggleMute}>{muted || volume === 0 ? <VolumeX /> : <Volume2 />}{muted || volume === 0 ? "Sesi aç" : "Sessize al"}</DropdownMenuItem><div className="px-3 py-3"><Slider aria-label="Ses seviyesi (ayarlar)" min={0} max={100} value={[muted ? 0 : volume]} onValueChange={([value = 0]) => { player.current?.setVolume(value); player.current?.unMute(); setVolume(value); setMuted(false); }} /></div>{!videoUrl && <><DropdownMenuSeparator /><DropdownMenuLabel>Kalite · Otomatik</DropdownMenuLabel><p className="px-2 pb-2 text-xs text-muted-foreground">YouTube tarafından ayarlanır.</p></>}{rates.length > 1 && <><DropdownMenuSeparator /><DropdownMenuLabel>Oynatma hızı</DropdownMenuLabel><DropdownMenuRadioGroup value={String(rate)} onValueChange={(value) => player.current?.setPlaybackRate(Number(value))}>{rates.map((r) => <DropdownMenuRadioItem key={r} value={String(r)}>{r === 1 ? "Normal" : `${r}×`}</DropdownMenuRadioItem>)}</DropdownMenuRadioGroup></>}</DropdownMenuContent></DropdownMenu>
               <Control label={fullscreen ? "Tam ekrandan çık" : "Tam ekran"} disabled={!ready} onClick={() => void toggleFullscreen()}>{fullscreen ? <Minimize /> : <Maximize />}</Control>
             </div>
           </div>
