@@ -17,3 +17,4 @@
 - Vercel builds (VERCEL=1) use the nitro `vercel` preset in vite.config.ts; the default edge output made Vercel 404 every page.
 - Keep YouTube lifecycle and custom controls in VideoPlayer, with progress persistence supplied by the watch route; this isolates UI changes from existing history and completion rules.
 - Allow dropdown portals to target the player container so settings remain accessible in browser fullscreen.
+- Uploaded MP4 sources reuse episodes.youtube_url and the existing media bucket; a native playback adapter shares controls and progress callbacks without requiring a database migration.
