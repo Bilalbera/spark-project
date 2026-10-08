@@ -9,6 +9,7 @@ import { useToggle } from "@/hooks/useToggles";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/app/cards";
 import { VideoPlayer } from "@/components/app/VideoPlayer";
+import { isDirectVideo } from "@/lib/native-video-player";
 import { formatCount, youtubeId } from "@/lib/format";
 
 export const Route = createFileRoute("/izle/$id")({
@@ -69,7 +70,7 @@ function Watch() {
 
   return (
     <main className="mx-auto max-w-5xl px-4 pb-20 pt-20">
-      {youtubeId(ep.youtube_url) ? <VideoPlayer key={id} videoId={youtubeId(ep.youtube_url) ?? ""} title={ep.title} getStart={getStart} onProgress={saveProgress} /> : <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-card text-muted-foreground">Video henüz eklenmedi.</div>}
+      {isDirectVideo(ep.youtube_url) ? <VideoPlayer key={id} videoId="" videoUrl={ep.youtube_url ?? ""} title={ep.title} getStart={getStart} onProgress={saveProgress} /> : youtubeId(ep.youtube_url) ? <VideoPlayer key={id} videoId={youtubeId(ep.youtube_url) ?? ""} title={ep.title} getStart={getStart} onProgress={saveProgress} /> : <div className="flex aspect-video w-full items-center justify-center rounded-xl bg-card text-muted-foreground">Video henüz eklenmedi.</div>}
       <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
         <div>
           {ep.series && <Link to="/seri/$slug" params={{ slug: ep.series.slug }} className="text-sm font-semibold text-primary">{ep.series.title} • Sezon {ep.seasons?.number}</Link>}
