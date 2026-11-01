@@ -160,3 +160,44 @@
 .video-buffer::-webkit-progress-value { background: var(--player-buffer); }
 .video-buffer::-moz-progress-bar { background: var(--player-buffer); }
 @media (prefers-reduced-motion: reduce) { .video-controls { transition: none; } }
+
+/* ===== Premium ===== */
+:root {
+  --premium-gold: oklch(0.82 0.15 85);
+  --premium-gold-deep: oklch(0.62 0.14 70);
+  --premium-diamond: oklch(0.86 0.1 210);
+  --premium-glow: oklch(0.82 0.15 85 / 55%);
+  --premium-shimmer: linear-gradient(100deg, var(--premium-gold) 10%, var(--premium-diamond) 45%, var(--premium-gold) 80%);
+}
+@keyframes premium-shimmer { to { background-position: 200% center; } }
+@keyframes premium-pulse { 0%, 100% { box-shadow: 0 0 0 2px var(--frame-color), 0 0 10px var(--frame-glow); } 50% { box-shadow: 0 0 0 2px var(--frame-color), 0 0 22px var(--frame-glow); } }
+@keyframes sticker-bounce { 0%, 100% { transform: translateY(0) rotate(0); } 25% { transform: translateY(-8px) rotate(-8deg); } 75% { transform: translateY(-4px) rotate(8deg); } }
+.premium-name { background: var(--premium-shimmer); background-size: 200% auto; -webkit-background-clip: text; background-clip: text; color: transparent; animation: premium-shimmer 4s linear infinite; }
+.premium-badge { background: linear-gradient(135deg, var(--premium-gold), var(--premium-gold-deep)); color: var(--primary-foreground); }
+.premium-seal { border: 1px solid var(--premium-gold); background: color-mix(in oklab, var(--premium-gold) 12%, transparent); color: var(--premium-gold); }
+.premium-glow-row { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--premium-gold) 45%, transparent), 0 0 16px -6px var(--premium-glow); }
+.premium-frame { border-radius: 999px; animation: premium-pulse 2.6s ease-in-out infinite; --frame-color: var(--premium-diamond); --frame-glow: oklch(0.86 0.1 210 / 60%); }
+.premium-frame[data-frame="gold"] { --frame-color: var(--premium-gold); --frame-glow: var(--premium-glow); }
+.premium-frame[data-frame="glow"] { --frame-color: oklch(0.97 0.02 90); --frame-glow: oklch(0.97 0.02 90 / 70%); }
+.premium-frame[data-frame="fire"] { --frame-color: oklch(0.7 0.2 40); --frame-glow: oklch(0.7 0.2 40 / 70%); }
+.premium-frame[data-frame="nether"] { --frame-color: oklch(0.65 0.22 330); --frame-glow: oklch(0.65 0.22 330 / 70%); }
+.sticker { display: inline-block; animation: sticker-bounce 1.6s ease-in-out infinite; }
+
+[data-accent="gold"] { --primary: oklch(0.82 0.15 85); --ring: oklch(0.82 0.15 85); }
+[data-accent="purple"] { --primary: oklch(0.68 0.2 300); --primary-foreground: oklch(0.98 0 0); --ring: oklch(0.68 0.2 300); }
+[data-accent="blue"] { --primary: oklch(0.68 0.16 245); --primary-foreground: oklch(0.98 0 0); --ring: oklch(0.68 0.16 245); }
+[data-accent="emerald"] { --primary: oklch(0.72 0.17 160); --ring: oklch(0.72 0.17 160); }
+[data-accent="crimson"] { --primary: oklch(0.58 0.22 25); --primary-foreground: oklch(0.98 0 0); --ring: oklch(0.58 0.22 25); }
+
+[data-profile-theme="gold"] { background: radial-gradient(circle at 50% 0%, oklch(0.42 0.1 80 / 70%), var(--card) 70%); }
+[data-profile-theme="dark"] { background: linear-gradient(160deg, oklch(0.12 0.01 260), oklch(0.2 0.03 80)); }
+[data-profile-theme="neon"] { background: radial-gradient(circle at 20% 10%, oklch(0.45 0.2 320 / 60%), transparent 50%), radial-gradient(circle at 80% 90%, oklch(0.5 0.17 200 / 55%), var(--card) 60%); }
+[data-profile-theme="obsidian"] { background: linear-gradient(135deg, oklch(0.1 0.03 290), oklch(0.22 0.07 290), oklch(0.1 0.03 290)); }
+[data-profile-theme="nether"] { background: radial-gradient(circle at 50% 100%, oklch(0.45 0.18 30 / 75%), oklch(0.15 0.05 20) 70%); }
+
+[data-chat-theme="dark"] { background: oklch(0.1 0.006 250); }
+[data-chat-theme="gold"] { background: linear-gradient(180deg, oklch(0.2 0.04 80), oklch(0.13 0.01 250)); }
+[data-chat-theme="midnight"] { background: linear-gradient(180deg, oklch(0.16 0.05 265), oklch(0.1 0.03 265)); }
+[data-chat-theme="nether"] { background: radial-gradient(circle at 50% 120%, oklch(0.35 0.15 30 / 70%), oklch(0.12 0.02 20) 70%); }
+.bubble-premium { border: 1px solid var(--premium-gold); box-shadow: 0 0 12px -4px var(--premium-glow); }
+@media (prefers-reduced-motion: reduce) { .premium-name, .premium-frame, .sticker { animation: none; } }
