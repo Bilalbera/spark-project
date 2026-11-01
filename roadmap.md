@@ -11,3 +11,6 @@
 - [x] Video alanına gerçek YouTube API kontrolleri ekle; mevcut ilerleme kayıtlarını koru ve masaüstü/mobil test et
 - [x] Kurucu bölüm formuna MP4 yükleme ve aynı kontrollerle doğrudan video oynatma ekle.
 - [ ] Gerçek kurucu hesabıyla MP4 yüklemesini doğrula — mevcut site bağlantısı ile bağlı Cloud şeması farklı; gerçek hesap ve media erişimi doğrulanamadı.
+- [ ] Ücretsiz 30 günlük test Premium üyeliği ve Premium görünüm/sohbet ayrıcalıkları
+- [ ] Google girişindeki "provider is not enabled" hatasını gider
+- [ ] Bölüm dosyası yüklemesinde 50 GB üst sınır uygula
