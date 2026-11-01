@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.18"
   }
   public: {
     Tables: {
@@ -345,6 +345,35 @@ export type Database = {
           },
         ]
       }
+      message_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          message_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          message_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          message_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "message_reactions_message_id_fkey"
+            columns: ["message_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -418,42 +447,84 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accent_color: string
+          avatar_frame: string
           avatar_url: string | null
           banned: boolean
           bio: string | null
+          chat_theme: string
           created_at: string
           display_name: string | null
           email: string | null
           id: string
           last_seen: string
           onboarded: boolean
+          premium_title: string | null
+          premium_until: string | null
+          profile_music: string | null
+          profile_theme: string
+          showcase_episode_id: string | null
+          showcase_series_id: string | null
           username: string | null
         }
         Insert: {
+          accent_color?: string
+          avatar_frame?: string
           avatar_url?: string | null
           banned?: boolean
           bio?: string | null
+          chat_theme?: string
           created_at?: string
           display_name?: string | null
           email?: string | null
           id: string
           last_seen?: string
           onboarded?: boolean
+          premium_title?: string | null
+          premium_until?: string | null
+          profile_music?: string | null
+          profile_theme?: string
+          showcase_episode_id?: string | null
+          showcase_series_id?: string | null
           username?: string | null
         }
         Update: {
+          accent_color?: string
+          avatar_frame?: string
           avatar_url?: string | null
           banned?: boolean
           bio?: string | null
+          chat_theme?: string
           created_at?: string
           display_name?: string | null
           email?: string | null
           id?: string
           last_seen?: string
           onboarded?: boolean
+          premium_title?: string | null
+          premium_until?: string | null
+          profile_music?: string | null
+          profile_theme?: string
+          showcase_episode_id?: string | null
+          showcase_series_id?: string | null
           username?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_showcase_episode_id_fkey"
+            columns: ["showcase_episode_id"]
+            isOneToOne: false
+            referencedRelation: "episodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_showcase_series_id_fkey"
+            columns: ["showcase_series_id"]
+            isOneToOne: false
+            referencedRelation: "series"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seasons: {
         Row: {
@@ -724,6 +795,7 @@ export type Database = {
         Args: { _request_id: string }
         Returns: undefined
       }
+      activate_free_premium: { Args: never; Returns: string }
       get_or_create_conversation: {
         Args: { _other_user_id: string }
         Returns: string
@@ -739,6 +811,7 @@ export type Database = {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      is_premium: { Args: { _user_id: string }; Returns: boolean }
       register_episode_view: {
         Args: { _episode_id: string }
         Returns: undefined
