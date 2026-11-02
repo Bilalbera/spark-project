@@ -91,7 +91,6 @@
   },
   "overrides": {
     "@tanstack/query-core": "file:./vendor/query-core",
-    "nitro": "file:./vendor/nitro",
     "ohash": "file:./vendor/ohash",
     "rolldown": "1.2.1",
   },
@@ -1388,8 +1387,6 @@
 
     "@tanstack/router-core/seroval": ["seroval@1.5.6", "", {}, "sha512-rVQVWjjSvlINzaQPZH5JFqsqEsIWdTxY3iJZCnTL/5gQbXIRooVZKI60tVCkOVfzcRPejboxO2t0P89dg5mQaA=="],
 
-    "@tanstack/router-core/seroval-plugins": ["seroval-plugins@1.5.6", "", { "peerDependencies": { "seroval": "^1.0" } }, "sha512-HXuLAX2pu/UByPpaeo/TaMfvMIi+1QqIoPJYCcAtU8QkVNwgR6MPlGuCQTErV1JwraaMbYaWVIBX7mppzGLATQ=="],
-
     "@tanstack/router-generator/zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
 
     "@tanstack/router-plugin/zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
@@ -1430,7 +1427,7 @@
 
     "micromatch/picomatch": ["picomatch@2.3.2", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/picomatch/-/picomatch-2.3.2.tgz", {}, "sha512-V7+vQEJ06Z+c5tSye8S+nHUfI51xoXIXjHQ99cQtKUkQqqO1kO/KCJUfZXuB47h/YBlDhah2H3hdUGXn8ie0oA=="],
 
-    "nitro/ohash": ["ohash@file:vendor/ohash", {}],
+    "nitro/ohash": ["ohash@file:./vendor/ohash", {}],
 
     "npm-run-path/path-key": ["path-key@4.0.0", "https://europe-west4-npm.pkg.dev/lovable-core-prod/sandbox-npm-cache/path-key/-/path-key-4.0.0.tgz", {}, "sha512-haREypq7xkM7ErfgIyA0z+Bj4AGKlMSdlQE2jvJo6huWD1EdkKYV+G/T4nq0YEF2vgTT8kqMFKo1uHn950r4SQ=="],
 
