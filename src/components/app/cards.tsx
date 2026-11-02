@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import type { Tables } from "@/lib/site-database.types";
 import { formatDuration, youtubeThumb } from "@/lib/format";
 import { cn } from "@/lib/utils";
+import { isPremium } from "@/lib/premium";
 
 export type Series = Tables<"series">;
 export type Episode = Tables<"episodes">;
@@ -117,19 +118,23 @@ export function UserAvatar({
   size = 40,
   online,
 }: {
-  p?: { avatar_url?: string | null; display_name?: string | null; username?: string | null } | null;
+  p?: { avatar_url?: string | null; display_name?: string | null; username?: string | null; premium_until?: string | null; avatar_frame?: string | null } | null;
   size?: number;
   online?: boolean;
 }) {
   const name = p?.display_name || p?.username || "?";
+  const premium = isPremium(p?.premium_until);
   return (
-    <span className="relative inline-block shrink-0" style={{ width: size, height: size }}>
+    <span className={cn("relative inline-block shrink-0", premium && "premium-frame")} data-frame={premium ? p?.avatar_frame ?? "diamond" : undefined} style={{ width: size, height: size }}>
       {p?.avatar_url ? (
         <img src={p.avatar_url} alt={name} className="h-full w-full rounded-full object-cover" />
       ) : (
         <span className="flex h-full w-full items-center justify-center rounded-full bg-accent font-semibold text-accent-foreground" style={{ fontSize: size * 0.4 }}>
           {name.charAt(0).toUpperCase()}
         </span>
+      )}
+      {premium && (
+        <span className="absolute -right-1 -top-1 leading-none drop-shadow" style={{ fontSize: Math.max(12, size * 0.28) }} aria-label="Premium">💎</span>
       )}
       {online !== undefined && (
         <span className={cn("absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-background", online ? "bg-success" : "bg-muted-foreground")} />

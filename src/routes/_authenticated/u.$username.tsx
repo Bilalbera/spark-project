@@ -5,7 +5,8 @@ import { UserPlus, MessageCircle, UserCheck, UserMinus, Clock } from "lucide-rea
 import { supabase } from "@/lib/site-client";
 import { useSession } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { EmptyState, UserAvatar } from "@/components/app/cards";
+import { EmptyState } from "@/components/app/cards";
+import { ProfileHero } from "@/components/app/premium";
 import { openConversation } from "@/lib/social";
 import { formatDate, isOnline, relativeTime } from "@/lib/format";
 
@@ -57,14 +58,7 @@ function UserProfile() {
   const online = isOnline(p.data.last_seen);
   return (
     <main className="mx-auto max-w-3xl px-4 pb-20 pt-28">
-      <div className="flex flex-col items-center gap-4 rounded-2xl bg-card p-8 text-center">
-        <UserAvatar p={p.data} size={112} online={online} />
-        <div>
-          <h1 className="text-3xl font-bold">{p.data.display_name}</h1>
-          <p className="text-muted-foreground">@{p.data.username}</p>
-          <p className="mt-1 text-xs text-muted-foreground">{online ? "Çevrimiçi" : `Son görülme ${relativeTime(p.data.last_seen)}`} • Üyelik {formatDate(p.data.created_at)}</p>
-        </div>
-        {p.data.bio && <p className="max-w-md">{p.data.bio}</p>}
+      <ProfileHero p={p.data} online={online} meta={<p className="mt-1 text-xs text-muted-foreground">{online ? "Çevrimiçi" : `Son görülme ${relativeTime(p.data.last_seen)}`} • Üyelik {formatDate(p.data.created_at)}</p>}>
         <div className="flex flex-wrap justify-center gap-2">
           {r?.friend ? (
             <>
@@ -82,7 +76,7 @@ function UserProfile() {
           )}
           {!r?.friend && <Button variant="outline" onClick={message} className="rounded-full"><MessageCircle /> Mesaj</Button>}
         </div>
-      </div>
+      </ProfileHero>
     </main>
   );
 }

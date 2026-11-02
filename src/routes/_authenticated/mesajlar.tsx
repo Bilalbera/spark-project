@@ -2,10 +2,13 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
-import { ArrowLeft, Send, Trash2, CheckCheck, Check } from "lucide-react";
+import { ArrowLeft, Send, Trash2, CheckCheck, Check, SmilePlus, Sticker } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/site-client";
-import { useSession } from "@/hooks/useAuth";
+import { useAuth, useSession } from "@/hooks/useAuth";
+import { PremiumName } from "@/components/app/premium";
+import { BASIC_REACTIONS, PREMIUM_REACTIONS, STICKERS, isPremium, parseSticker, stickerContent } from "@/lib/premium";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EmptyState, UserAvatar } from "@/components/app/cards";
@@ -69,7 +72,7 @@ function Messages() {
             <button key={cv.id} onClick={() => navigate({ to: "/mesajlar", search: { c: cv.id } })} className={`flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-card ${cv.id === c ? "bg-card" : ""}`}>
               <UserAvatar p={cv.other ?? null} online={isOnline(cv.other?.last_seen)} />
               <div className="min-w-0 flex-1">
-                <div className="flex justify-between gap-2"><p className="truncate font-semibold">{cv.other?.display_name ?? "Kullanıcı"}</p><span className="shrink-0 text-[10px] text-muted-foreground">{relativeTime(cv.last?.created_at)}</span></div>
+                <div className="flex justify-between gap-2"><PremiumName p={cv.other} className="font-semibold" /><span className="shrink-0 text-[10px] text-muted-foreground">{relativeTime(cv.last?.created_at)}</span></div>
                 <div className="flex justify-between gap-2">
                   <p className="truncate text-xs text-muted-foreground">{cv.last ? (cv.last.deleted ? "Mesaj silindi" : `${cv.last.sender_id === me ? "Sen: " : ""}${cv.last.content}`) : "Sohbet başlat"}</p>
                   {cv.unread > 0 && <span className="shrink-0 rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">{cv.unread}</span>}
@@ -88,6 +91,8 @@ function Messages() {
 
 function ChatWindow({ conversationId, me, other }: { conversationId: string; me: string; other: { id: string; username: string | null; display_name: string | null; avatar_url: string | null; last_seen: string } | null }) {
   const qc = useQueryClient();
+  const { profile: myProfile } = useAuth();
+  const iAmPremium = isPremium(myProfile?.premium_until);
   const [text, setText] = useState("");
   const bottom = useRef<HTMLDivElement>(null);
   const key = ["messages", conversationId];
@@ -95,6 +100,25 @@ function ChatWindow({ conversationId, me, other }: { conversationId: string; me:
     queryKey: key,
     queryFn: async () => ((await supabase.from("messages").select("*").eq("conversation_id", conversationId).order("created_at", { ascending: false }).limit(200)).data ?? []).reverse(),
   });
+  const msgIds = (msgs.data ?? []).map((m) => m.id);
+  const reactions = useQuery({
+    queryKey: ["reactions", conversationId, msgIds.length, msgIds[msgIds.length - 1]],
+    enabled: msgIds.length > 0,
+    queryFn: async () => (await supabase.from("message_reactions").select("message_id, user_id, emoji").in("message_id", msgIds)).data ?? [],
+  });
+  async function toggleReaction(messageId: string, emoji: string) {
+    const mineR = reactions.data?.find((r) => r.message_id === messageId && r.user_id === me && r.emoji === emoji);
+    const { error } = mineR
+      ? await supabase.from("message_reactions").delete().eq("message_id", messageId).eq("user_id", me).eq("emoji", emoji)
+      : await supabase.from("message_reactions").insert({ message_id: messageId, user_id: me, emoji });
+    if (error) toast.error(PREMIUM_REACTIONS.includes(emoji) && !iAmPremium ? "Bu tepki Premium üyeler içindir" : "Tepki eklenemedi");
+    reactions.refetch();
+  }
+  async function sendSticker(id: string) {
+    const { error } = await supabase.from("messages").insert({ conversation_id: conversationId, sender_id: me, content: stickerContent(id) });
+    if (error) toast.error("Çıkartmalar yalnızca Premium üyeler içindir");
+    qc.invalidateQueries({ queryKey: key });
+  }
   const markRead = async () => {
     await supabase.from("conversation_members").update({ last_read_at: new Date().toISOString() }).eq("conversation_id", conversationId).eq("user_id", me);
     await supabase.from("messages").update({ read_at: new Date().toISOString() }).eq("conversation_id", conversationId).neq("sender_id", me).is("read_at", null);
@@ -105,8 +129,10 @@ function ChatWindow({ conversationId, me, other }: { conversationId: string; me:
     const ch = supabase.channel(`chat-${conversationId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "messages", filter: `conversation_id=eq.${conversationId}` }, (payload) => {
         qc.invalidateQueries({ queryKey: key });
+        qc.invalidateQueries({ queryKey: ["reactions", conversationId] });
         if (payload.eventType === "INSERT" && (payload.new as { sender_id: string }).sender_id !== me) markRead();
       })
+      .on("postgres_changes", { event: "*", schema: "public", table: "message_reactions" }, () => qc.invalidateQueries({ queryKey: ["reactions", conversationId] }))
       .subscribe();
     return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -139,30 +165,61 @@ function ChatWindow({ conversationId, me, other }: { conversationId: string; me:
         <Link to="/mesajlar" search={{}} className="sm:hidden"><ArrowLeft /></Link>
         {other && <Link to="/u/$username" params={{ username: other.username ?? other.id }} className="flex items-center gap-3">
           <UserAvatar p={other} size={36} online={isOnline(other.last_seen)} />
-          <div><p className="font-semibold">{other.display_name}</p><p className="text-xs text-muted-foreground">{isOnline(other.last_seen) ? "Çevrimiçi" : `Son görülme ${relativeTime(other.last_seen)}`}</p></div>
+          <div><PremiumName p={other} className="font-semibold" /><p className="text-xs text-muted-foreground">{isOnline(other.last_seen) ? "Çevrimiçi" : `Son görülme ${relativeTime(other.last_seen)}`}</p></div>
         </Link>}
         <Button variant="ghost" size="icon" className="ml-auto" onClick={leave} aria-label="Sohbeti sil"><Trash2 /></Button>
       </header>
-      <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4">
+      <div className="flex-1 space-y-2 overflow-y-auto px-4 py-4" data-chat-theme={iAmPremium ? myProfile?.chat_theme : undefined}>
         {msgs.data?.length === 0 && <p className="mt-10 text-center text-sm text-muted-foreground">İlk mesajı sen gönder 👋</p>}
         {msgs.data?.map((m) => {
           const mine = m.sender_id === me;
+          const sticker = m.deleted ? null : parseSticker(m.content);
+          const premiumBubble = mine && iAmPremium;
+          const grouped = Object.entries((reactions.data ?? []).filter((r) => r.message_id === m.id).reduce<Record<string, { n: number; mine: boolean }>>((acc, r) => {
+            const g = acc[r.emoji] ?? { n: 0, mine: false };
+            acc[r.emoji] = { n: g.n + 1, mine: g.mine || r.user_id === me };
+            return acc;
+          }, {}));
           return (
             <div key={m.id} className={`group flex ${mine ? "justify-end" : "justify-start"}`}>
               {mine && !m.deleted && <button onClick={() => del(m.id)} className="mr-2 self-center opacity-0 transition-opacity group-hover:opacity-100" aria-label="Sil"><Trash2 className="h-4 w-4 text-muted-foreground" /></button>}
-              <div className={`max-w-[75%] rounded-2xl px-4 py-2 ${mine ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-card"}`}>
-                <p className={`whitespace-pre-wrap break-words text-sm ${m.deleted ? "italic opacity-60" : ""}`}>{m.deleted ? "Bu mesaj silindi" : m.content}</p>
+              {!mine && !m.deleted && <ReactionPicker premium={iAmPremium} onPick={(e) => toggleReaction(m.id, e)} />}
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2 ${sticker ? "bg-transparent" : mine ? (premiumBubble ? "bubble-premium rounded-br-sm bg-card" : "rounded-br-sm bg-primary text-primary-foreground") : "rounded-bl-sm bg-card"}`}>
+                {sticker ? <p className="text-center"><span className="sticker text-5xl" aria-label={sticker.label}>{sticker.emoji}</span><span className="block text-[10px] text-muted-foreground">{sticker.label}</span></p> : <p className={`whitespace-pre-wrap break-words text-sm ${m.deleted ? "italic opacity-60" : ""}`}>{m.deleted ? "Bu mesaj silindi" : m.content}</p>}
+                {grouped.length > 0 && <div className="mt-1 flex flex-wrap gap-1">{grouped.map(([emoji, g]) => <button key={emoji} onClick={() => toggleReaction(m.id, emoji)} className={`rounded-full border px-1.5 text-xs ${g.mine ? "border-primary" : "border-border"} bg-background/40 text-foreground`}>{emoji} {g.n}</button>)}</div>}
                 <p className="mt-0.5 flex items-center justify-end gap-1 text-[10px] opacity-70">{formatTime(m.created_at)}{mine && (m.read_at ? <CheckCheck className="h-3 w-3" /> : <Check className="h-3 w-3" />)}</p>
               </div>
+              {mine && !m.deleted && <ReactionPicker premium={iAmPremium} onPick={(e) => toggleReaction(m.id, e)} />}
             </div>
           );
         })}
         <div ref={bottom} />
       </div>
       <form onSubmit={send} className="flex gap-2 border-t border-border p-3">
+        <Popover>
+          <PopoverTrigger asChild><Button type="button" size="icon" variant="ghost" className="shrink-0 rounded-full" aria-label="Çıkartmalar"><Sticker /></Button></PopoverTrigger>
+          <PopoverContent align="start" className="w-64">
+            <p className="mb-2 text-xs font-semibold">👑 Premium Minecraft çıkartmaları</p>
+            {iAmPremium ? <div className="grid grid-cols-3 gap-2">{Object.entries(STICKERS).map(([id, st]) => <button key={id} type="button" onClick={() => sendSticker(id)} className="rounded-lg p-2 hover:bg-muted"><span className="sticker text-3xl">{st.emoji}</span><span className="block text-[10px] text-muted-foreground">{st.label}</span></button>)}</div> : <p className="text-xs text-muted-foreground">Çıkartmalar Premium üyeler içindir. <Link to="/premium" className="text-primary">Ücretsiz dene</Link></p>}
+          </PopoverContent>
+        </Popover>
         <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Mesaj yaz..." className="rounded-full" />
         <Button type="submit" size="icon" className="shrink-0 rounded-full" aria-label="Gönder"><Send /></Button>
       </form>
     </>
+  );
+}
+
+function ReactionPicker({ premium, onPick }: { premium: boolean; onPick: (emoji: string) => void }) {
+  const list = premium ? PREMIUM_REACTIONS : BASIC_REACTIONS;
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="mx-1 self-center opacity-0 transition-opacity focus:opacity-100 group-hover:opacity-100" aria-label="Tepki ekle"><SmilePlus className="h-4 w-4 text-muted-foreground" /></button>
+      </PopoverTrigger>
+      <PopoverContent className="flex w-auto gap-1 p-1.5">
+        {list.map((e) => <button key={e} onClick={() => onPick(e)} className="rounded-md px-1.5 py-1 text-lg hover:bg-muted" aria-label={`${e} tepkisi`}>{e}</button>)}
+      </PopoverContent>
+    </Popover>
   );
 }

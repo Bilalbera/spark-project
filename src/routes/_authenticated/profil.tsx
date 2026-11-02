@@ -8,6 +8,8 @@ import { EmptyState, EpisodeCard, SeriesCard, UserAvatar, type Series } from "@/
 import { fetchFriends } from "@/lib/social";
 import { formatDate, isOnline, relativeTime } from "@/lib/format";
 import { ProfileForm } from "./kurulum";
+import { ProfileHero, PremiumName } from "@/components/app/premium";
+import { isPremium, premiumDaysLeft } from "@/lib/premium";
 
 export const Route = createFileRoute("/_authenticated/profil")({
   head: () => ({ meta: [{ title: "Profilim — Bilal Efendi" }, { name: "description", content: "Favorilerin, listen, izleme geçmişin ve arkadaşların." }] }),
@@ -28,14 +30,9 @@ function MyProfile() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-20 pt-24">
-      <div className="mb-8 flex flex-wrap items-center gap-5">
-        <UserAvatar p={profile} size={88} />
-        <div>
-          <h1 className="text-3xl font-bold">{profile?.display_name}</h1>
-          <p className="text-muted-foreground">@{profile?.username} • {formatDate(profile?.created_at)} tarihinden beri üye</p>
-          {profile?.bio && <p className="mt-1 text-sm">{profile.bio}</p>}
-        </div>
-      </div>
+      {profile && <div className="mb-8"><ProfileHero p={profile} meta={<p className="text-xs text-muted-foreground">{formatDate(profile.created_at)} tarihinden beri üye</p>}>
+        <Button asChild variant="secondary" className="rounded-full"><Link to="/premium">{isPremium(profile.premium_until) ? `👑 Premium ayarları · ${premiumDaysLeft(profile.premium_until)} gün kaldı` : "👑 Premium'u ücretsiz dene"}</Link></Button>
+      </ProfileHero></div>}
       <Tabs defaultValue="devam">
         <TabsList className="no-scrollbar h-auto w-full justify-start overflow-x-auto">
           <TabsTrigger value="devam">Devam Et</TabsTrigger>
@@ -60,7 +57,7 @@ function MyProfile() {
         <TabsContent value="arkadas" className="pt-4">
           {friends.data?.length ? <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">{friends.data.map((f) => (
             <Link key={f.id} to="/u/$username" params={{ username: f.username ?? f.id }} className="flex items-center gap-3 rounded-lg bg-card p-3 hover:bg-elevated">
-              <UserAvatar p={f} online={isOnline(f.last_seen)} /><div><p className="font-semibold">{f.display_name}</p><p className="text-xs text-muted-foreground">@{f.username}</p></div>
+              <UserAvatar p={f} online={isOnline(f.last_seen)} /><div className="min-w-0"><PremiumName p={f} className="max-w-full font-semibold" /><p className="text-xs text-muted-foreground">@{f.username}</p></div>
             </Link>))}</div> : <EmptyState title="Henüz arkadaşın yok" action={<Button asChild className="rounded-full"><Link to="/arkadaslar">Arkadaş bul</Link></Button>} />}
         </TabsContent>
         <TabsContent value="ayar" className="max-w-md pt-4"><ProfileForm submitLabel="Kaydet" onDone={() => {}} /></TabsContent>

@@ -155,8 +155,9 @@ function NotificationBell({ userId }: { userId: string }) {
                 qc.invalidateQueries({ queryKey: ["notifications", userId] });
                 if (n.link) navigate({ to: n.link });
               }}
-              className={`block w-full border-b border-border px-4 py-3 text-left hover:bg-muted ${n.read ? "opacity-60" : ""}`}
+              className={`block w-full border-b border-border px-4 py-3 text-left hover:bg-muted ${n.read ? "opacity-60" : ""} ${n.type === "friend_request_premium" ? "premium-glow-row rounded-lg" : ""}`}
             >
+              {n.type === "friend_request_premium" && <p className="mb-1 text-[10px] font-extrabold uppercase tracking-wider text-primary">👑 Altın mühürlü davet</p>}
               <p className="text-sm font-semibold">{n.title}</p>
               {n.body && <p className="line-clamp-2 text-xs text-muted-foreground">{n.body}</p>}
               <p className="mt-1 text-[10px] text-muted-foreground">{relativeTime(n.created_at)}</p>
