@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Bell, Menu, Search, LogOut, User, Users, MessageCircle, Crown } from "lucide-react";
+import { Bell, Menu, Search, LogOut, User, Users, MessageCircle, Mail, Crown } from "lucide-react";
 import { supabase } from "@/lib/site-client";
 import { useAuth } from "@/hooks/useAuth";
 import { relativeTime } from "@/lib/format";
@@ -90,6 +90,7 @@ export function Navbar() {
                   <DropdownMenuItem asChild><Link to="/profil"><User /> Profilim</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/arkadaslar"><Users /> Arkadaşlar</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/mesajlar"><MessageCircle /> Mesajlar</Link></DropdownMenuItem>
+                  <DropdownMenuItem asChild><a href="mailto:bilaliletisim465@gmail.com"><Mail /> Bize ulaşın</a></DropdownMenuItem>
                   {isFounder && <DropdownMenuItem asChild><Link to="/kurucu"><Crown /> Kurucu Paneli</Link></DropdownMenuItem>}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}><LogOut /> Çıkış Yap</DropdownMenuItem>

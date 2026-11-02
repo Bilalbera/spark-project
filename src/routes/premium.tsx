@@ -26,7 +26,13 @@ function Premium() {
     const { error } = await supabase.rpc("activate_free_premium");
     setBusy(false);
     if (error) {
-      toast.error(error.message.includes("zaten") ? "Ücretsiz Premium denemen zaten kullanılmış." : "Premium başlatılamadı. Biraz sonra tekrar dene.");
+      if (error.message.includes("zaten")) {
+        toast.error("Ücretsiz Premium denemen zaten kullanılmış.");
+      } else if (error.code === "PGRST202" || /activate_free_premium|schema cache/i.test(error.message)) {
+        toast.error("Premium kurulumu tamamlanmamış. Supabase SQL Editor'da activate_free_premium.sql dosyasını çalıştır.");
+      } else {
+        toast.error("Premium başlatılamadı. Biraz sonra tekrar dene.");
+      }
       return;
     }
     await qc.invalidateQueries({ queryKey: ["my-profile", user.id] });
