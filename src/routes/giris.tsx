@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/site-client";
 import { useSession } from "@/hooks/useAuth";
@@ -22,6 +22,43 @@ function LoginPage() {
   const { user, loading } = useSession();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
+  const callbackHandled = useRef(false);
+
+  useEffect(() => {
+    if (callbackHandled.current) return;
+
+    const callbackUrl = new URL(window.location.href);
+    const code = callbackUrl.searchParams.get("code");
+    const callbackError = callbackUrl.searchParams.get("error_description")
+      ?? callbackUrl.searchParams.get("error");
+
+    if (callbackError) {
+      callbackHandled.current = true;
+      window.history.replaceState(null, "", callbackUrl.pathname);
+      toast.error(`Google girişi tamamlanamadı: ${callbackError}`);
+      return;
+    }
+    if (!code) return;
+
+    callbackHandled.current = true;
+    setBusy(true);
+    // Remove the one-time authorization code from browser history immediately.
+    window.history.replaceState(null, "", callbackUrl.pathname);
+
+    void supabase.auth.exchangeCodeForSession(code).then(({ data, error }) => {
+      if (error || !data.session) {
+        toast.error(`Giriş tamamlanamadı: ${error?.message ?? "Oturum oluşturulamadı."}`);
+        setBusy(false);
+        return;
+      }
+      navigate({ to: "/", replace: true });
+    }).catch((error: unknown) => {
+      const message = error instanceof Error ? error.message : "Bilinmeyen bir hata oluştu.";
+      toast.error(`Giriş tamamlanamadı: ${message}`);
+      setBusy(false);
+    });
+  }, [navigate]);
+
   useEffect(() => {
     if (!user) return;
 

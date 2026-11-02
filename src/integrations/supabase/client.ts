@@ -72,9 +72,10 @@ function createSupabaseClient() {
     },
     auth: {
       // Use the authorization-code flow so the OAuth callback exchanges a
-      // short-lived code for a session instead of validating URL tokens via
-      // /auth/v1/user before the app can establish the session.
+      // short-lived code for a session. The login route handles the callback
+      // explicitly so failures can be shown instead of leaving a dead-end page.
       flowType: 'pkce',
+      detectSessionInUrl: false,
       storage: brokeredPreviewStorage(),
       persistSession: true,
       autoRefreshToken: true,
