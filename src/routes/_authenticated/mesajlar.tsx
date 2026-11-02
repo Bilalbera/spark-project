@@ -179,7 +179,7 @@ function ChatWindow({ conversationId, me, other }: { conversationId: string; me:
             const g = acc[r.emoji] ?? { n: 0, mine: false };
             acc[r.emoji] = { n: g.n + 1, mine: g.mine || r.user_id === me };
             return acc;
-          }, {}));
+          }, {})) as [string, { n: number; mine: boolean }][];
           return (
             <div key={m.id} className={`group flex ${mine ? "justify-end" : "justify-start"}`}>
               {mine && !m.deleted && <button onClick={() => del(m.id)} className="mr-2 self-center opacity-0 transition-opacity group-hover:opacity-100" aria-label="Sil"><Trash2 className="h-4 w-4 text-muted-foreground" /></button>}
