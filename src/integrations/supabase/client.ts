@@ -64,6 +64,10 @@ function createSupabaseClient() {
 
   return createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     global: {
+      // Auth endpoints such as /auth/v1/user also require the project API key.
+      // Set it in Supabase's shared client headers as well as the custom fetch
+      // wrapper below so OAuth URL session validation always carries it.
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
       fetch: createSupabaseFetch(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY),
     },
     auth: {
