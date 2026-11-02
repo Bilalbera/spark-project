@@ -41,7 +41,6 @@
   ],
   "devDependencies": {
     "npm-run-all2": "^5.0.0",
-    "@tanstack/query-test-utils": "0.0.0"
   },
   "scripts": {
     "clean": "premove ./build ./coverage ./dist-ts",
