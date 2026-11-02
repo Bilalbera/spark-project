@@ -36,6 +36,13 @@
       "when": 1793539176993,
       "tag": "0004_premium_trial",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1793620000000,
+      "tag": "0005_single_premium_trial_and_upload_limit",
+      "breakpoints": true
     }
   ]
 }

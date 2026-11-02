@@ -34,7 +34,15 @@ function LoginPage() {
       provider: "google",
       options: { redirectTo: `${base}/giris` },
     });
-    if (error) { toast.error("Giriş yapılamadı, tekrar dene."); setBusy(false); }
+    if (error) {
+      // This response comes from Supabase Auth when Google OAuth is disabled
+      // for the configured project. Give a useful message instead of hiding it.
+      const providerDisabled = /unsupported provider|provider is not enabled/i.test(error.message);
+      toast.error(providerDisabled
+        ? "Google girişi Supabase projesinde etkin değil. Supabase Dashboard > Authentication > Sign In / Providers > Google bölümünü etkinleştirip OAuth Client ID ve Secret ekleyin."
+        : `Giriş yapılamadı: ${error.message}`);
+      setBusy(false);
+    }
   }
 
   return (

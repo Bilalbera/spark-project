@@ -37,7 +37,7 @@ function resumableUpload(path: string, file: File, onProgress?: (ratio: number) 
       onError: (err) => {
         const msg = String(err?.message ?? err);
         if (/413|too large|maximum size|exceeded/i.test(msg)) {
-          reject(new Error("Depolama şu an dosya başına en fazla 5 GB kabul ediyor."));
+          reject(new Error("Dosya depolama sınırını aşıyor. En fazla 50 GB yükleyebilirsin; bu sınır sunucu depolama ayarlarına da bağlıdır."));
         } else reject(new Error(`Video yüklenemedi: ${msg}`));
       },
       onProgress: (sent, total) => onProgress?.(total ? sent / total : 0),
