@@ -9,7 +9,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmptyState, UserAvatar } from "@/components/app/cards";
-import { fetchFriends, fetchProfiles, openConversation, type MiniProfile } from "@/lib/social";
+import { fetchFriends, fetchProfiles, openConversation, MINI_PROFILE_COLUMNS, type MiniProfile } from "@/lib/social";
+import { PremiumName } from "@/components/app/premium";
+import { isPremium, premiumFirst } from "@/lib/premium";
+import { cn } from "@/lib/utils";
 import { isOnline, relativeTime } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/arkadaslar")({
@@ -24,6 +27,7 @@ function Friends() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState("");
   const [search, setSearch] = useState("");
+  const [onlyPremium, setOnlyPremium] = useState(false);
   const friends = useQuery({ queryKey: ["friends", me], enabled: !!me, queryFn: () => fetchFriends(me) });
   const reqs = useQuery({
     queryKey: ["friend-requests", me],
@@ -35,11 +39,14 @@ function Friends() {
     },
   });
   const found = useQuery({
-    queryKey: ["user-search", search],
-    enabled: !!me && search.trim().length >= 2,
+    queryKey: ["user-search", search, onlyPremium],
+    enabled: !!me && (search.trim().length >= 2 || onlyPremium),
     queryFn: async () => {
       const t = `%${search.trim().replace(/[%_,()]/g, "")}%`;
-      return (await supabase.from("profiles").select("id, username, display_name, avatar_url, last_seen").neq("id", me).or(`username.ilike.${t},display_name.ilike.${t}`).limit(20)).data ?? [];
+      let q = supabase.from("profiles").select(MINI_PROFILE_COLUMNS).neq("id", me);
+      if (search.trim().length >= 2) q = q.or(`username.ilike.${t},display_name.ilike.${t}`);
+      if (onlyPremium) q = q.gt("premium_until", new Date().toISOString());
+      return premiumFirst(((await q.limit(30)).data ?? []) as MiniProfile[]);
     },
   });
   useEffect(() => {
@@ -53,7 +60,7 @@ function Friends() {
   const incoming = (reqs.data ?? []).filter((r) => r.receiver_id === me);
   const outgoing = (reqs.data ?? []).filter((r) => r.sender_id === me);
   const list = (friends.data ?? []).filter((f) => `${f.display_name} ${f.username}`.toLowerCase().includes(filter.toLowerCase()))
-    .sort((a, b) => Number(isOnline(b.last_seen)) - Number(isOnline(a.last_seen)));
+    .sort((a, b) => Number(isPremium(b.premium_until)) - Number(isPremium(a.premium_until)) || Number(isOnline(b.last_seen)) - Number(isOnline(a.last_seen)));
 
   const refresh = () => { qc.invalidateQueries({ queryKey: ["friend-requests", me] }); qc.invalidateQueries({ queryKey: ["friends", me] }); };
   async function accept(id: string) { const { error } = await supabase.rpc("accept_friend_request", { _request_id: id }); if (error) toast.error("Hata"); else toast.success("Artık arkadaşsınız"); refresh(); }
@@ -62,10 +69,10 @@ function Friends() {
   async function msg(id: string) { const c = await openConversation(id); navigate({ to: "/mesajlar", search: { c } }); }
 
   const Row = ({ p, children }: { p?: MiniProfile | undefined; children?: React.ReactNode }) => p ? (
-    <div className="flex items-center gap-3 rounded-lg bg-card p-3">
+    <div className={cn("flex items-center gap-3 rounded-lg bg-card p-3", isPremium(p.premium_until) && "premium-glow-row")}>
       <Link to="/u/$username" params={{ username: p.username ?? p.id }} className="flex min-w-0 flex-1 items-center gap-3">
         <UserAvatar p={p} online={isOnline(p.last_seen)} />
-        <div className="min-w-0"><p className="truncate font-semibold">{p.display_name}</p><p className="truncate text-xs text-muted-foreground">@{p.username} • {isOnline(p.last_seen) ? "Çevrimiçi" : relativeTime(p.last_seen)}</p></div>
+        <div className="min-w-0"><PremiumName p={p} className="max-w-full font-semibold" /><p className="truncate text-xs text-muted-foreground">@{p.username} • {isOnline(p.last_seen) ? "Çevrimiçi" : relativeTime(p.last_seen)}</p></div>
       </Link>
       {children}
     </div>
@@ -102,6 +109,7 @@ function Friends() {
         </TabsContent>
         <TabsContent value="find" className="space-y-2 pt-4">
           <Input placeholder="Kullanıcı adı veya isim..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <label className="flex items-center gap-2 text-sm text-muted-foreground"><input type="checkbox" className="h-4 w-4 accent-primary" checked={onlyPremium} onChange={(e) => setOnlyPremium(e.target.checked)} /> Sadece Premium üyeleri göster</label>
           {found.data?.map((p) => <Row key={p.id} p={p}><Button size="sm" asChild variant="secondary"><Link to="/u/$username" params={{ username: p.username ?? p.id }}>Profil</Link></Button></Row>)}
           {found.data && !found.data.length && <p className="text-sm text-muted-foreground">Kimse bulunamadı.</p>}
         </TabsContent>
