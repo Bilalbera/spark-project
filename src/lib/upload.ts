@@ -1,6 +1,6 @@
 import * as tus from "tus-js-client";
 import { supabase } from "@/lib/site-client";
-import { episodeFileError } from "@/lib/upload-limits";
+import { episodeFileError, formatBytes } from "@/lib/upload-limits";
 
 /** Uploads an image to the private media bucket and returns a long-lived signed URL. */
 export async function uploadImage(file: File, folder: string) {
@@ -22,8 +22,12 @@ function resumableUpload(path: string, file: File, onProgress?: (ratio: number) 
     const token = data.session?.access_token;
     if (!token) return reject(new Error("Oturum bulunamadı, tekrar giriş yap."));
     const base = import.meta.env["VITE_SUPABASE_URL"] as string;
+    const projectId = import.meta.env["VITE_SUPABASE_PROJECT_ID"] as string | undefined;
+    const storageBase = projectId && /^[a-z0-9]+$/.test(projectId)
+      ? `https://${projectId}.storage.supabase.co`
+      : base;
     const upload = new tus.Upload(file, {
-      endpoint: `${base}/storage/v1/upload/resumable`,
+      endpoint: `${storageBase}/storage/v1/upload/resumable`,
       retryDelays: [0, 3000, 5000, 10000, 20000],
       headers: {
         authorization: `Bearer ${token}`,
@@ -37,7 +41,7 @@ function resumableUpload(path: string, file: File, onProgress?: (ratio: number) 
       onError: (err) => {
         const msg = String(err?.message ?? err);
         if (/413|too large|maximum size|exceeded/i.test(msg)) {
-          reject(new Error("Dosya depolama sınırını aşıyor. En fazla 50 GB yükleyebilirsin; bu sınır sunucu depolama ayarlarına da bağlıdır."));
+          reject(new Error(`Supabase yükleme sınırı dosya boyutundan düşük (${formatBytes(file.size)}). Storage ayarlarında global ve media bucket sınırlarını kontrol et; ücretsiz projelerde üst sınır 50 MB.`));
         } else reject(new Error(`Video yüklenemedi: ${msg}`));
       },
       onProgress: (sent, total) => onProgress?.(total ? sent / total : 0),
