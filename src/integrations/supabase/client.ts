@@ -71,6 +71,10 @@ function createSupabaseClient() {
       fetch: createSupabaseFetch(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY),
     },
     auth: {
+      // Use the authorization-code flow so the OAuth callback exchanges a
+      // short-lived code for a session instead of validating URL tokens via
+      // /auth/v1/user before the app can establish the session.
+      flowType: 'pkce',
       storage: brokeredPreviewStorage(),
       persistSession: true,
       autoRefreshToken: true,
