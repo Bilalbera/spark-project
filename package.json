@@ -47,8 +47,7 @@
   "overrides": {
     "rolldown": "1.2.1",
     "@tanstack/query-core": "file:./vendor/query-core",
-    "ohash": "file:./vendor/ohash",
-    "nitro": "file:./vendor/nitro"
+    "ohash": "file:./vendor/ohash"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -125,7 +124,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^15.15.0",
-    "nitro": "3.0.260603-beta",
+    "nitro": "file:./vendor/nitro",
     "ohash": "file:./vendor/ohash",
     "postgres": "^3.4.9",
     "prettier": "^3.7.3",
