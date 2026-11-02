@@ -19,10 +19,19 @@ export const Route = createFileRoute("/giris")({
 });
 
 function LoginPage() {
-  const { user } = useSession();
+  const { user, loading } = useSession();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
-  useEffect(() => { if (user) navigate({ to: "/", replace: true }); }, [user, navigate]);
+  useEffect(() => {
+    if (!user) return;
+
+    // OAuth returns its session in the URL fragment. Remove the credentials from
+    // the address bar before leaving the callback route.
+    if (window.location.hash) {
+      window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}`);
+    }
+    navigate({ to: "/", replace: true });
+  }, [user, navigate]);
 
   async function google() {
     setBusy(true);
@@ -52,8 +61,8 @@ function LoginPage() {
         <p className="font-display text-5xl tracking-widest text-primary">BİLAL EFENDİ</p>
         <h1 className="mt-6 text-xl font-bold">Bilal Efendi'ye Hoş Geldin</h1>
         <p className="mt-2 text-sm text-muted-foreground">Serileri izle, kaldığın yerden devam et, arkadaşlarınla sohbet et.</p>
-        <Button onClick={google} disabled={busy} size="lg" className="mt-8 w-full rounded-full">
-          {busy ? "Yönlendiriliyor..." : "Google ile devam et"}
+        <Button onClick={google} disabled={busy || loading} size="lg" className="mt-8 w-full rounded-full">
+          {busy || loading ? "Yönlendiriliyor..." : "Google ile devam et"}
         </Button>
       </div>
     </div>
