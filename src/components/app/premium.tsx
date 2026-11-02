@@ -5,6 +5,7 @@ import { Crown, Music, Pause } from "lucide-react";
 import { supabase } from "@/lib/site-client";
 import { isPremium, PROFILE_MUSIC } from "@/lib/premium";
 import { cn } from "@/lib/utils";
+import { UserAvatar } from "@/components/app/cards";
 
 type NameProfile = { display_name?: string | null; username?: string | null; premium_until?: string | null } | null | undefined;
 
@@ -118,5 +119,35 @@ export function ProfileMusic({ track }: { track?: string | null }) {
     <button onClick={playing ? stop : start} className="premium-seal inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold" aria-label={playing ? "Profil müziğini durdur" : "Profil müziğini çal"}>
       {playing ? <Pause className="h-3.5 w-3.5" /> : <Music className="h-3.5 w-3.5" />} {meta.label}
     </button>
+  );
+}
+
+type HeroProfile = {
+  display_name: string | null; username: string | null; avatar_url: string | null; bio: string | null;
+  premium_until: string | null; premium_title: string | null; profile_theme: string; accent_color: string; avatar_frame: string;
+  profile_music: string | null; showcase_episode_id: string | null; showcase_series_id: string | null;
+};
+
+/** Profile card that applies premium theme, accent, frame, title, showcase and music while membership is active. */
+export function ProfileHero({ p, meta, online, children }: { p: HeroProfile; meta?: React.ReactNode; online?: boolean; children?: React.ReactNode }) {
+  const premium = isPremium(p.premium_until);
+  return (
+    <div
+      className="flex flex-col items-center gap-4 rounded-2xl bg-card p-8 text-center"
+      data-profile-theme={premium ? p.profile_theme : undefined}
+      data-accent={premium && p.accent_color !== "default" ? p.accent_color : undefined}
+    >
+      <UserAvatar p={p} size={112} {...(online !== undefined ? { online } : {})} />
+      <div className="space-y-1">
+        <h1 className={cn("text-3xl font-bold", premium && "premium-name")}>{p.display_name}</h1>
+        {premium && <p><span className="premium-badge inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-extrabold tracking-wider">👑 PREMIUM</span></p>}
+        <p className="text-muted-foreground">@{p.username}</p>
+        {meta}
+      </div>
+      {premium && <div className="flex flex-wrap justify-center gap-2"><PremiumSeal title={p.premium_title} /><ProfileMusic track={p.profile_music} /></div>}
+      {p.bio && <p className="max-w-md">{p.bio}</p>}
+      {premium && <ProfileShowcase episodeId={p.showcase_episode_id} seriesId={p.showcase_series_id} />}
+      {children}
+    </div>
   );
 }

@@ -69,7 +69,7 @@ function Messages() {
             <button key={cv.id} onClick={() => navigate({ to: "/mesajlar", search: { c: cv.id } })} className={`flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-card ${cv.id === c ? "bg-card" : ""}`}>
               <UserAvatar p={cv.other ?? null} online={isOnline(cv.other?.last_seen)} />
               <div className="min-w-0 flex-1">
-                <div className="flex justify-between gap-2"><p className="truncate font-semibold">{cv.other?.display_name ?? "Kullanıcı"}</p><span className="shrink-0 text-[10px] text-muted-foreground">{relativeTime(cv.last?.created_at)}</span></div>
+                <div className="flex justify-between gap-2"><PremiumName p={cv.other} className="font-semibold" /><span className="shrink-0 text-[10px] text-muted-foreground">{relativeTime(cv.last?.created_at)}</span></div>
                 <div className="flex justify-between gap-2">
                   <p className="truncate text-xs text-muted-foreground">{cv.last ? (cv.last.deleted ? "Mesaj silindi" : `${cv.last.sender_id === me ? "Sen: " : ""}${cv.last.content}`) : "Sohbet başlat"}</p>
                   {cv.unread > 0 && <span className="shrink-0 rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">{cv.unread}</span>}
@@ -139,7 +139,7 @@ function ChatWindow({ conversationId, me, other }: { conversationId: string; me:
         <Link to="/mesajlar" search={{}} className="sm:hidden"><ArrowLeft /></Link>
         {other && <Link to="/u/$username" params={{ username: other.username ?? other.id }} className="flex items-center gap-3">
           <UserAvatar p={other} size={36} online={isOnline(other.last_seen)} />
-          <div><p className="font-semibold">{other.display_name}</p><p className="text-xs text-muted-foreground">{isOnline(other.last_seen) ? "Çevrimiçi" : `Son görülme ${relativeTime(other.last_seen)}`}</p></div>
+          <div><PremiumName p={other} className="font-semibold" /><p className="text-xs text-muted-foreground">{isOnline(other.last_seen) ? "Çevrimiçi" : `Son görülme ${relativeTime(other.last_seen)}`}</p></div>
         </Link>}
         <Button variant="ghost" size="icon" className="ml-auto" onClick={leave} aria-label="Sohbeti sil"><Trash2 /></Button>
       </header>
