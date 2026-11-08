@@ -7,6 +7,7 @@ import {
   Home,
   LayoutDashboard,
   LogOut,
+  Mail,
   Users,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ const items = [
   { to: "/kurucu/kategoriler", label: "Kategoriler", icon: FolderOpen },
   { to: "/kurucu/kullanicilar", label: "Kullanıcılar", icon: Users },
   { to: "/kurucu/istatistikler", label: "İstatistikler", icon: BarChart3 },
+  { to: "/kurucu/iletisim", label: "Kullanıcı İletileri", icon: Mail },
 ] as const;
 
 export function AdminShell() {

@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Check, Crown, Loader2, Sparkles } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/lib/site-client";
-import { isPremium, premiumDaysLeft, PROFILE_THEMES, ACCENT_COLORS, AVATAR_FRAMES, CHAT_THEMES, PREMIUM_TITLES } from "@/lib/premium";
+import { isPremium, premiumDaysLeft } from "@/lib/premium";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/premium")({
@@ -56,16 +56,6 @@ function Premium() {
         <Feature title="Premium profil" items={["İsim yanında Premium rozeti ve parıltı", "Elmas çerçeve ve profil mührü", "Özel profil arka planı ve vurgu rengi", "Özel ünvan, vitrin ve profil müziği"]} />
         <Feature title="Sohbet ayrıcalıkları" items={["Mesajlarda Premium rozeti", "Altı özel Premium tepkisi", "Özel sohbet temaları", "Premium mesaj balonları ve çıkartmalar"]} />
         <Feature title="Premium topluluk" items={["Premium filtresi ve listelerde öncelik", "Çevrimiçi Premium göstergesi", "Altın mühürlü arkadaşlık daveti", "Rozet adının geçtiği listelerde görünür"]} />
-      </section>
-      <section className="mt-8 rounded-2xl border border-border bg-card p-6">
-        <h2 className="font-semibold">Kişiselleştirme seçenekleri</h2>
-        <div className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
-          <p><span className="font-medium">Profil temaları:</span> {PROFILE_THEMES.map((x) => x.label).join(" · ")}</p>
-          <p><span className="font-medium">Vurgu renkleri:</span> {ACCENT_COLORS.map((x) => x.label).join(" · ")}</p>
-          <p><span className="font-medium">Avatar çerçeveleri:</span> {AVATAR_FRAMES.map((x) => x.label).join(" · ")}</p>
-          <p><span className="font-medium">Sohbet temaları:</span> {CHAT_THEMES.map((x) => x.label).join(" · ")}</p>
-          <p className="sm:col-span-2"><span className="font-medium">Ünvanlar:</span> {PREMIUM_TITLES.join(" · ")}</p>
-        </div>
       </section>
     </main>
   );

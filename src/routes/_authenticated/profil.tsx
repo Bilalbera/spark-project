@@ -9,7 +9,7 @@ import { fetchFriends } from "@/lib/social";
 import { formatDate, isOnline, relativeTime } from "@/lib/format";
 import { ProfileForm } from "./kurulum";
 import { ProfileHero, PremiumName } from "@/components/app/premium";
-import { isPremium, premiumDaysLeft } from "@/lib/premium";
+import { ProfileCustomizationForm } from "@/components/app/ProfileCustomizationForm";
 
 export const Route = createFileRoute("/_authenticated/profil")({
   head: () => ({ meta: [{ title: "Profilim — Bilal Efendi" }, { name: "description", content: "Favorilerin, listen, izleme geçmişin ve arkadaşların." }] }),
@@ -30,9 +30,7 @@ function MyProfile() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 pb-20 pt-24">
-      {profile && <div className="mb-8"><ProfileHero p={profile} meta={<p className="text-xs text-muted-foreground">{formatDate(profile.created_at)} tarihinden beri üye</p>}>
-        <Button asChild variant="secondary" className="rounded-full"><Link to="/premium">{isPremium(profile.premium_until) ? `👑 Premium ayarları · ${premiumDaysLeft(profile.premium_until)} gün kaldı` : "👑 Premium'u ücretsiz dene"}</Link></Button>
-      </ProfileHero></div>}
+      {profile && <div className="mb-8"><ProfileHero p={profile} meta={<p className="text-xs text-muted-foreground">{formatDate(profile.created_at)} tarihinden beri üye</p>} /></div>}
       <Tabs defaultValue="devam">
         <TabsList className="no-scrollbar h-auto w-full justify-start overflow-x-auto">
           <TabsTrigger value="devam">Devam Et</TabsTrigger>
@@ -41,6 +39,7 @@ function MyProfile() {
           <TabsTrigger value="gecmis">İzleme Geçmişi</TabsTrigger>
           <TabsTrigger value="arkadas">Arkadaşlar</TabsTrigger>
           <TabsTrigger value="ayar">Hesap Ayarları</TabsTrigger>
+          <TabsTrigger value="kisisel">Kişiselleştirme</TabsTrigger>
         </TabsList>
         <TabsContent value="devam" className="pt-4">
           {cont.data?.length ? <div className="flex flex-wrap gap-4">{cont.data.map((p) => p.episodes && <EpisodeCard key={p.episode_id} e={p.episodes} subtitle={p.episodes.series?.title} progress={p.duration_seconds ? p.position_seconds / p.duration_seconds : 0} />)}</div> : <EmptyState title="Yarım kalan bölüm yok" />}
@@ -61,6 +60,7 @@ function MyProfile() {
             </Link>))}</div> : <EmptyState title="Henüz arkadaşın yok" action={<Button asChild className="rounded-full"><Link to="/arkadaslar">Arkadaş bul</Link></Button>} />}
         </TabsContent>
         <TabsContent value="ayar" className="max-w-md pt-4"><ProfileForm submitLabel="Kaydet" onDone={() => {}} /></TabsContent>
+        <TabsContent value="kisisel" className="pt-4"><ProfileCustomizationForm /></TabsContent>
       </Tabs>
     </main>
   );

@@ -111,7 +111,7 @@ function ChatWindow({ conversationId, me, other }: { conversationId: string; me:
     const { error } = mineR
       ? await supabase.from("message_reactions").delete().eq("message_id", messageId).eq("user_id", me).eq("emoji", emoji)
       : await supabase.from("message_reactions").insert({ message_id: messageId, user_id: me, emoji });
-    if (error) toast.error(PREMIUM_REACTIONS.includes(emoji) && !iAmPremium ? "Bu tepki Premium üyeler içindir" : "Tepki eklenemedi");
+    if (error) toast.error(PREMIUM_REACTIONS.includes(emoji) && !iAmPremium ? "Bu tepki Premium üyeler içindir" : `Tepki eklenemedi: ${error.message}`);
     reactions.refetch();
   }
   async function sendSticker(id: string) {

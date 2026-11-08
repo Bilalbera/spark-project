@@ -1,7 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Bell, Menu, Search, LogOut, User, Users, MessageCircle, Mail, Crown } from "lucide-react";
+import { Bell, Menu, Search, LogOut, User, Users, MessageCircle, Mail, Crown, Send } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/lib/site-client";
 import { useAuth } from "@/hooks/useAuth";
 import { relativeTime } from "@/lib/format";
@@ -11,6 +12,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import { UserAvatar } from "./cards";
 
 const links = [
@@ -25,6 +28,9 @@ export function Navbar() {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [scrolled, setScrolled] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [contactBody, setContactBody] = useState("");
+  const [contactBusy, setContactBusy] = useState(false);
 
   useEffect(() => {
     const on = () => setScrolled(window.scrollY > 20);
@@ -45,6 +51,21 @@ export function Navbar() {
     qc.clear();
     await supabase.auth.signOut();
     navigate({ to: "/giris", replace: true });
+  }
+
+  async function sendContact(e: React.FormEvent) {
+    e.preventDefault();
+    if (!user || contactBusy) return;
+    const body = contactBody.trim();
+    if (body.length < 10) { toast.error("Mesajın en az 10 karakter olsun."); return; }
+    if (body.length > 3000) { toast.error("Mesajın en fazla 3000 karakter olabilir."); return; }
+    setContactBusy(true);
+    const { error } = await supabase.from("contact_messages").insert({ sender_id: user.id, sender_email: user.email ?? null, body });
+    setContactBusy(false);
+    if (error) { toast.error(`Mesaj gönderilemedi: ${error.message}`); return; }
+    setContactBody("");
+    setContactOpen(false);
+    toast.success("Mesajın kurucu ekibine iletildi.");
   }
 
   return (
@@ -90,12 +111,25 @@ export function Navbar() {
                   <DropdownMenuItem asChild><Link to="/profil"><User /> Profilim</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/arkadaslar"><Users /> Arkadaşlar</Link></DropdownMenuItem>
                   <DropdownMenuItem asChild><Link to="/mesajlar"><MessageCircle /> Mesajlar</Link></DropdownMenuItem>
-                  <DropdownMenuItem asChild><a href="mailto:bilaliletisim465@gmail.com"><Mail /> Bize ulaşın</a></DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => setContactOpen(true)}><Mail /> Bize ulaşın</DropdownMenuItem>
                   {isFounder && <DropdownMenuItem asChild><Link to="/kurucu"><Crown /> Kurucu Paneli</Link></DropdownMenuItem>}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}><LogOut /> Çıkış Yap</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              <Dialog open={contactOpen} onOpenChange={setContactOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Bize ulaşın</DialogTitle>
+                    <DialogDescription>Mesajın kurucu ekibine iletilir. Yanıt için {" "}<a className="text-primary underline" href="mailto:bilaliletisim465@gmail.com">bilaliletisim465@gmail.com</a> adresinden de ulaşabilirsin.</DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={sendContact} className="space-y-3">
+                    <Textarea value={contactBody} onChange={(e) => setContactBody(e.target.value)} placeholder="Mesajını yaz…" maxLength={3000} required rows={6} />
+                    <p className="text-right text-xs text-muted-foreground">{contactBody.length}/3000</p>
+                    <Button className="w-full" disabled={contactBusy || contactBody.trim().length < 10}><Send />{contactBusy ? "Gönderiliyor…" : "Mesajı gönder"}</Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </>
           ) : (
             <Button asChild size="sm" className="ml-2 rounded-full"><Link to="/giris">Giriş Yap</Link></Button>
