@@ -28,6 +28,21 @@ export function formatTime(value?: string | null) {
   return new Date(value).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 }
 
+/** Accept a raw image URL or a Markdown link/image and return a browser-ready URL. */
+export function normalizeImageUrl(value?: string | null) {
+  if (!value) return null;
+  let candidate = value.trim();
+  const markdown = /^!?\[[^\]]*\]\(\s*(?:<([^>]+)>|(https?:\/\/[^)\s]+))(?:\s+["'][^)]*["'])?\s*\)$/.exec(candidate);
+  if (markdown) candidate = (markdown[1] ?? markdown[2] ?? "").trim();
+  if (!candidate) return null;
+  try {
+    const parsed = new URL(candidate);
+    return parsed.protocol === "https:" || parsed.protocol === "http:" ? parsed.href : null;
+  } catch {
+    return candidate.startsWith("/") && !candidate.startsWith("//") ? candidate : null;
+  }
+}
+
 export function relativeTime(value?: string | null) {
   if (!value) return "";
   const diff = Date.now() - new Date(value).getTime();

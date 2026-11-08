@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { ContentRow, EmptyState, EpisodeCard, RowSkeleton, SeriesCard, type Series } from "@/components/app/cards";
 import { useToggle } from "@/hooks/useToggles";
+import { normalizeImageUrl } from "@/lib/format";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -102,7 +103,7 @@ function Hero({ s }: { s: Series }) {
     queryFn: async () => (await supabase.from("episodes").select("id, seasons(number)").eq("series_id", s.id).order("number").limit(20)).data ?? [],
   });
   const firstId = [...(first.data ?? [])].sort((a, b) => (a.seasons?.number ?? 0) - (b.seasons?.number ?? 0))[0]?.id;
-  const bg = s.hero_url || s.cover_url;
+  const bg = normalizeImageUrl(s.hero_url) || normalizeImageUrl(s.cover_url);
   return (
     <section className="relative flex h-[75vh] min-h-[480px] items-end overflow-hidden">
       {bg && <img src={bg} alt={s.title} className="absolute inset-0 h-full w-full object-cover" />}

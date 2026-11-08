@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BarChart3, Eye, Film, MessageCircle, PlaySquare, Users } from "lucide-react";
 import { supabase } from "@/lib/site-client";
+import { normalizeImageUrl } from "@/lib/format";
 import { AdminHeading, MetricCard } from "@/components/app/AdminShell";
 import { Button } from "@/components/ui/button";
 
@@ -41,7 +42,7 @@ function Dashboard() {
       <div><h2 className="mb-3 text-lg font-semibold">Son eklenen seriler</h2><div className="divide-y divide-border rounded-lg border border-border bg-card">
         {recent.isLoading && <div className="h-24 animate-pulse" />}
         {recent.data?.length === 0 && <p className="p-6 text-sm text-muted-foreground">Henüz seri eklenmedi.</p>}
-        {recent.data?.map((item) => <div key={item.id} className="flex items-center gap-3 p-3">{item.cover_url ? <img src={item.cover_url} alt="" className="h-14 w-10 rounded object-cover" /> : <div className="h-14 w-10 rounded bg-muted" />}<div className="min-w-0 flex-1"><p className="truncate font-medium">{item.title}</p><p className="text-xs text-muted-foreground">{item.status === "published" ? "Yayında" : "Taslak"}</p></div></div>)}
+        {recent.data?.map((item) => { const image = normalizeImageUrl(item.cover_url); return <div key={item.id} className="flex items-center gap-3 p-3">{image ? <img src={image} alt="" className="h-14 w-10 rounded object-cover" /> : <div className="h-14 w-10 rounded bg-muted" />}<div className="min-w-0 flex-1"><p className="truncate font-medium">{item.title}</p><p className="text-xs text-muted-foreground">{item.status === "published" ? "Yayında" : "Taslak"}</p></div></div>; })}
       </div></div>
       <div><h2 className="mb-3 text-lg font-semibold">Hızlı işlemler</h2><div className="space-y-2 rounded-lg border border-border bg-card p-3"><Button asChild variant="secondary" className="w-full justify-start"><Link to="/kurucu/seriler"><Film /> Yeni seri ekle</Link></Button><Button asChild variant="secondary" className="w-full justify-start"><Link to="/kurucu/bolumler"><PlaySquare /> Bölüm ekle</Link></Button><Button asChild variant="secondary" className="w-full justify-start"><Link to="/kurucu/istatistikler"><BarChart3 /> Raporları gör</Link></Button></div></div>
     </section>

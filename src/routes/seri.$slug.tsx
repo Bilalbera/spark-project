@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useToggle } from "@/hooks/useToggles";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/app/cards";
-import { formatDuration, youtubeThumb, formatDate } from "@/lib/format";
+import { formatDuration, youtubeThumb, formatDate, normalizeImageUrl } from "@/lib/format";
 
 export const Route = createFileRoute("/seri/$slug")({
   head: () => ({
@@ -49,11 +49,12 @@ function SeriesDetail() {
   type Progress = { episode_id: string; completed: boolean | null; duration_seconds: number | null; position_seconds: number };
   const pm = new Map<string, Progress>((progress.data ?? []).map((p: Progress) => [p.episode_id, p] as const));
   const first = eps[0];
+  const heroImage = normalizeImageUrl(s.hero_url) || normalizeImageUrl(s.cover_url);
 
   return (
     <main className="pb-20">
       <section className="relative flex h-[60vh] min-h-[420px] items-end">
-        {(s.hero_url || s.cover_url) && <img src={s.hero_url || s.cover_url!} alt={s.title} className="absolute inset-0 h-full w-full object-cover" />}
+        {heroImage && <img src={heroImage} alt={s.title} className="absolute inset-0 h-full w-full object-cover" />}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
         <div className="relative max-w-3xl space-y-4 px-4 pb-10 sm:px-8">
           <p className="text-sm text-primary">{[s.genre, s.release_date && formatDate(s.release_date), `${seasons.length} sezon`].filter(Boolean).join(" • ")}</p>
@@ -82,7 +83,7 @@ function SeriesDetail() {
               return (
                 <Link key={e.id} to="/izle/$id" params={{ id: e.id }} className="flex gap-4 rounded-lg p-2 transition-colors hover:bg-card">
                   <div className="relative aspect-video w-40 shrink-0 overflow-hidden rounded-md bg-elevated sm:w-56">
-                    {(e.thumbnail_url || youtubeThumb(e.youtube_url)) && <img src={e.thumbnail_url || youtubeThumb(e.youtube_url)!} alt="" className="h-full w-full object-cover" loading="lazy" />}
+                    {(normalizeImageUrl(e.thumbnail_url) || youtubeThumb(e.youtube_url)) && <img src={normalizeImageUrl(e.thumbnail_url) || youtubeThumb(e.youtube_url)!} alt="" className="h-full w-full object-cover" loading="lazy" />}
                     {pct > 0 && <div className="absolute inset-x-0 bottom-0 h-1 bg-muted"><div className="h-full bg-primary" style={{ width: `${pct * 100}%` }} /></div>}
                   </div>
                   <div className="min-w-0 py-1">

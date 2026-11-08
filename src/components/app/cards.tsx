@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Play } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Tables } from "@/lib/site-database.types";
-import { formatDuration, youtubeThumb } from "@/lib/format";
+import { formatDuration, normalizeImageUrl, youtubeThumb } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { isPremium } from "@/lib/premium";
 
@@ -10,6 +10,7 @@ export type Series = Tables<"series">;
 export type Episode = Tables<"episodes">;
 
 export function SeriesCard({ s, className }: { s: Series; className?: string }) {
+  const cover = normalizeImageUrl(s.cover_url);
   return (
     <Link
       to="/seri/$slug"
@@ -20,8 +21,8 @@ export function SeriesCard({ s, className }: { s: Series; className?: string }) 
       )}
     >
       <div className="aspect-[2/3] w-full bg-elevated">
-        {s.cover_url ? (
-          <img src={s.cover_url} alt={s.title} loading="lazy" className="h-full w-full object-cover" />
+        {cover ? (
+          <img src={cover} alt={s.title} loading="lazy" className="h-full w-full object-cover" />
         ) : (
           <div className="flex h-full items-center justify-center p-3 text-center font-display text-2xl text-muted-foreground">
             {s.title}
@@ -47,7 +48,7 @@ export function EpisodeCard({
   subtitle?: string;
   className?: string;
 }) {
-  const thumb = e.thumbnail_url || youtubeThumb(e.youtube_url);
+  const thumb = normalizeImageUrl(e.thumbnail_url) || youtubeThumb(e.youtube_url);
   return (
     <Link
       to="/izle/$id"
